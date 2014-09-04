@@ -59,7 +59,7 @@ class Encoding(object):
         return results
 
     def _execute_request(self, json, headers, path='', method='POST'):
-        print('json: {0}'.format(json) )
+        # print('json: {0}'.format(json) )
         params = urllib.parse.urlencode({'json': json})
 
         conn = http.client.HTTPConnection(self.url)
