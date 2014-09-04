@@ -14,7 +14,9 @@ setup(
     description=("Python 3 wrapper for Encoding.com api"),
     license="",
     keywords="encoding.com transcoding",
-    url="",
+    url="https://github.com/studionowinc/encodingcom-py3",
+    author="Ryan Stubblefield",
+    author_email="ryan.stubblefield@gmail.com",
     packages=find_packages(
         exclude=["*.tests", "*.tests.*", "tests.*", "tests", "*.examples", "example*"]),
     long_description=read('README.md'),
