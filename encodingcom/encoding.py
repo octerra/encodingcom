@@ -41,12 +41,13 @@ class Encoding(object):
         results = self._execute_request(query, headers)
         return results
 
-    def add_media(self, action='AddMedia', source=[], notify='', formats=[], instant='no', headers=ENCODING_API_HEADERS):
+    def add_media(self, action='AddMedia', source=[], notify='', notify_format='', formats=[], instant='no', headers=ENCODING_API_HEADERS):
         fields = { 'userid':self.userid,
                    'userkey':self.userkey,
                    'action':action,
                    'source':source,
                    'notify':notify,
+                   'notify_format':notify_format,
                    'instant':instant,
                    'format':formats
                  }
