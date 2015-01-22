@@ -11,8 +11,7 @@ def read(fname):
 
 # TODO: Warning: way how we parse and provide read me files on the fly will on some systems result in a
 # theoretical race condition where the download folder will no longer exist once the read() has been invoked
-# parse this content before the setup() is called
-read_me = read('README.md')
+# parse this content before the setup() is called.  Removed dynamic processing of read me to provide description
 
 setup(
     name="encodingcom-py3",
@@ -25,7 +24,7 @@ setup(
     author_email="ryan.stubblefield@gmail.com",
     packages=find_packages(
         exclude=["*.tests", "*.tests.*", "tests.*", "tests", "*.examples", "example*"]),
-    long_description=read_me,
+    long_description='Encoding.com service handling (c) StudioNow 2015',
     install_requires=[
     ],
     classifiers=[
