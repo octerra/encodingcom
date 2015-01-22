@@ -8,6 +8,12 @@ from setuptools import setup, find_packages
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+
+# TODO: Warning: way how we parse and provide read me files on the fly will on some systems result in a
+# theoretical race condition where the download folder will no longer exist once the read() has been invoked
+# parse this content before the setup() is called
+read_me = read('README.md')
+
 setup(
     name="encodingcom-py3",
     version="0.0.4",
@@ -19,7 +25,7 @@ setup(
     author_email="ryan.stubblefield@gmail.com",
     packages=find_packages(
         exclude=["*.tests", "*.tests.*", "tests.*", "tests", "*.examples", "example*"]),
-    long_description=read('README.md'),
+    long_description=read_me,
     install_requires=[
     ],
     classifiers=[
