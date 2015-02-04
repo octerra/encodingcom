@@ -1,6 +1,10 @@
-import http.client
-import urllib.parse
-import json
+"""
+
+"""
+
+from http.client import HTTPConnection
+from urllib.parse import urlencode
+from json import dumps
 
 ENCODING_API_URL = 'manage.encoding.com:80'
 ENCODING_API_HEADERS = {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -35,7 +39,7 @@ class Encoding(object):
 
         dq = dict()
         dq['query'] = fields
-        query = json.dumps(dq)
+        query = dumps(dq)
 
         results = self._execute_request(query, headers)
         return results
@@ -60,7 +64,7 @@ class Encoding(object):
 
         dq = dict()
         dq['query'] = fields
-        query = json.dumps(dq)
+        query = dumps(dq)
 
         results = self._execute_request(query, headers)
         return results
@@ -94,24 +98,24 @@ class Encoding(object):
 
         dq = dict()
         dq['query'] = fields
-        query = json.dumps(dq)
+        query = dumps(dq)
 
         results = self._execute_request(query, headers)
         return results
 
-    def _execute_request(self, json, headers, path='', method='POST'):
+    def _execute_request(self, json_data, headers, path='', method='POST'):
         """
 
-        :param json:
+        :param json_data:
         :param headers:
         :param path:
         :param method:
         :return:
         """
         # print('json: {0}'.format(json) )
-        params = urllib.parse.urlencode({'json': json})
+        params = urlencode({'json': json_data})
 
-        conn = http.client.HTTPConnection(self.url)
+        conn = HTTPConnection(self.url)
         conn.request(method, path, params, headers)
         response = conn.getresponse()
         # TODO: Better handling of response, ie. errors
