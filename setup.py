@@ -15,7 +15,7 @@ def read(fname):
 
 setup(
     name="encodingcom-py3",
-    version="0.0.4",
+    version="0.0.5",
     description=("Python 3 wrapper for Encoding.com api"),
     license="",
     keywords="encoding.com transcoding",
