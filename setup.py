@@ -1,12 +1,13 @@
 import os
 from setuptools import setup, find_packages
 
+
 # Utility function to read the README file.
 # Used for the long_description.  It's nice, because now 1) we have a top level
 # README file and 2) it's easier to type in the README file than to put a raw
 # string in below ...
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+def read(file_name):
+    return open(os.path.join(os.path.dirname(__file__), file_name)).read()
 
 
 # TODO: Warning: way how we parse and provide read me files on the fly will on some systems result in a
@@ -16,7 +17,7 @@ def read(fname):
 setup(
     name="encodingcom-py3",
     version="0.0.5",
-    description=("Python 3 wrapper for Encoding.com api"),
+    description="Python 3 wrapper for Encoding.com api",
     license="",
     keywords="encoding.com transcoding",
     url="https://github.com/studionowinc/encodingcom-py3",
