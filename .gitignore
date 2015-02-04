@@ -1,3 +1,24 @@
+logs/
+*.pid
+*.swp
+.DS_Store
+.idea
+tmp/
+.localapphome
+*.status
+dump.rdb
+
+# our temp place for sandbox to upload locally
+uploads/
+
+# Bower ignores
+static/js/lib/*/*bower.json
+
+# Node ignores
+node_modules/
+
+# github.com default python ignores, everything below
+#
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -13,7 +34,7 @@ build/
 develop-eggs/
 dist/
 eggs/
-lib/
+/lib/
 lib64/
 parts/
 sdist/
@@ -26,7 +47,7 @@ var/
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Unit test / coverage reports
+# Unit tests / coverage reports
 htmlcov/
 .tox/
 .coverage

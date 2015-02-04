@@ -20,6 +20,7 @@ setup(
     license="",
     keywords="encoding.com transcoding",
     url="https://github.com/studionowinc/encodingcom-py3",
+    zip_safe=False,
     author="Ryan Stubblefield",
     author_email="ryan.stubblefield@gmail.com",
     packages=find_packages(
