@@ -6,22 +6,24 @@ from http.client import HTTPConnection
 from urllib.parse import urlencode
 from json import dumps
 
-ENCODING_API_URL = 'manage.encoding.com:80'
-ENCODING_API_HEADERS = {'Content-Type': 'application/x-www-form-urlencoded'}
-
 
 class Encoding(object):
     """
     Helper class to talk to Encoding.com server
 
     """
+    ENCODING_API_URL = 'manage.encoding.com:80'
+    ENCODING_API_HEADERS = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    def __init__(self, user_id, user_key, url=ENCODING_API_URL):
-        self.url = url
+    def __init__(self, user_id, user_key, url=''):
+        if url:
+            self.url = url
+        else:
+            self.url = Encoding.ENCODING_API_URL
         self.user_id = user_id
         self.user_key = user_key
 
-    def get_media_info(self, action='GetMediaInfo', ids=None, headers=ENCODING_API_HEADERS):
+    def get_media_info(self, action='GetMediaInfo', ids=None, headers=''):
         """
 
         :param action:
@@ -31,6 +33,8 @@ class Encoding(object):
         """
         if not ids:
             ids = []
+        if not headers:
+            headers = Encoding.ENCODING_API_HEADERS
 
         fields = {'userid': self.user_id,
                   'userkey': self.user_key,
