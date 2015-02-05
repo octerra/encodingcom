@@ -15,7 +15,7 @@ def read(file_name):
 # parse this content before the setup() is called.  Removed dynamic processing of read me to provide description
 
 setup(
-    name="encodingcom-py3",
+    name="encodingcom_py3",
     version="0.0.5",
     description="Python 3 wrapper for Encoding.com api",
     license="",
