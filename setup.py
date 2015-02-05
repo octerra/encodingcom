@@ -27,11 +27,13 @@ setup(
     packages=find_packages(
         exclude=["*.tests", "*.tests.*", "tests.*", "tests", "*.examples", "example*"]),
     long_description='Encoding.com service handling (c) StudioNow 2015',
+    include_package_data=True,
     install_requires=[
     ],
+    data_files = ['README.md'],
     classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Environment :: No Input/Output (Daemon)",
+        "Development Status :: 5 - Alpha",
+        "Environment :: Web Environment",
         "Natural Language :: English",
         "Operating System :: POSIX",
         "Programming Language :: Python :: 3"
