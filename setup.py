@@ -32,7 +32,7 @@ setup(
     ],
     data_files = ['README.md'],
     classifiers=[
-        "Development Status :: 5 - Alpha",
+        "Development Status :: 3 - Alpha",
         "Environment :: Web Environment",
         "Natural Language :: English",
         "Operating System :: POSIX",
