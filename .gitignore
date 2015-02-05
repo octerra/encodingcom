@@ -1,4 +1,5 @@
 logs/
+.pypirc
 *.pid
 *.swp
 .DS_Store
