@@ -5,6 +5,7 @@ def read(file_name):
     return open(os.path.join(os.path.dirname(__file__), file_name)).read()
 
 setup(
+    # TODO:  Change the package name to be PEP8 compliant
     name="encodingcom-py3",
     version="0.0.5",
     description="Python 3 wrapper for Encoding.com api",
