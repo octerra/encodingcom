@@ -6,7 +6,7 @@ Positive and Negative tests
 from unittest import TestCase
 
 from exceptions import InvalidParameterError
-from encoding import Encoding
+from format import Format
 
 
 class PropertyTests(TestCase):
@@ -19,7 +19,7 @@ class PropertyTests(TestCase):
         Setup a dummy Encoding service object
         :return:
         """
-        self.encoding = Encoding('dummy_id', 'dummy_key')
+        self.format = Format()
 
     def tearDown(self):
         pass
@@ -34,7 +34,7 @@ class PropertyTests(TestCase):
             test_settings = ['mov', 'mov:libx264']
 
             for setting in test_settings:
-                self.encoding.video_codec = setting
+                self.format.video_codec = setting
         except:
             self.fail('Expected valid settings for video codec failed with an exception')
 
@@ -47,9 +47,9 @@ class PropertyTests(TestCase):
         :return:
         """
         with self.assertRaises(InvalidParameterError):
-            self.encoding.video_codec = 'mov:bad_encoder'
+            self.format.video_codec = 'mov:bad_encoder'
         with self.assertRaises(InvalidParameterError):
-            self.encoding.video_codec = 'invalid'
+            self.format.video_codec = 'invalid'
 
 
 if __name__ == '__main__':
