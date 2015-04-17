@@ -4,7 +4,7 @@ Format handler for encoding.com
 
 """
 
-from exceptions import InvalidParameterError
+from exception import InvalidParameterError
 
 
 class Format(object):
