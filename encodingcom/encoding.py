@@ -19,10 +19,8 @@ class Encoding(object):
     API_HEADER = {'Content-Type': 'application/x-www-form-urlencoded'}
 
     # === default settings ===
-    # encoding.com default processing is us-east-1 if not specified, we choose Northern California for default
-    # override to use one that is suitable to your needs
-    default_region = 'us-west-1'
 
+    # encoding.com defaults to xml, we prefer json
     default_notification_format = 'json'
 
     # http://help.encoding.com/knowledge-base/article/what-is-instant-mode/
@@ -89,12 +87,15 @@ class Encoding(object):
 
     def setup_defaults(self):
         """
-        setup instance object with the defaults used in the system.
+        Setup instance object to reflect client settings
+        Only specify default settings that falls in this criteria:
+         * override the default natural Encoding.com defaults
+         * hidden or non documented settings
+
         client can override these settings with explicit property setters after construction of object
 
-        :return:
+        :return: None
         """
-        self.region = Encoding.default_region
         self.notification_format = Encoding.default_notification_format
         self.instant = Encoding.default_instant
 
@@ -116,14 +117,12 @@ class Encoding(object):
         query['query'] = body
         return query
 
-    def setup_request(self, action: str, required_keys: list, **kwargs):
+    def setup_request(self, action: str, **kwargs):
         """
         Generic setup request for delivery to encoding.com
 
         :param action: str
             action desired
-        :param required_keys: list
-            List of required keys.  Ensures that all the keys has been defined by the client
         :param kwargs: dict
             Arguments provided by the client
         :return:
@@ -133,13 +132,11 @@ class Encoding(object):
 
         request = self.setup_core_request(action)
 
-        for key in required_keys:
-            value = kwargs.get(key)
-            if value:
-                self.__setattr__(key, kwargs[key])
-                request['query'][key] = getattr(self, key)
-            else:
-                raise InvalidParameterError(key)
+        query_dict = request['query']
+        for key in kwargs:
+            query_dict[key] = kwargs[key]
+
+        return request
 
     # def get_media_info(self, ids=None, headers=''):
     def get_media_info(self, **kwargs):
@@ -151,9 +148,7 @@ class Encoding(object):
         :return:
         """
 
-        required_keys = ['mediaid']
-
-        request = self.setup_request('GetMediaInfo', required_keys, **kwargs)
+        request = self.setup_request('GetMediaInfo', **kwargs)
         json = dumps(request)
 
         results = self._execute_request(json, Encoding.API_HEADER)
@@ -195,185 +190,11 @@ class Encoding(object):
 
         :return:
         """
-        required_keys = ['source', 'notify', 'notify_format', 'format']
+        request = self.setup_request('AddMedia', **kwargs)
+        json = dumps(request)
 
-        request = self.setup_request('AddMedia', required_keys, **kwargs)
-
-        results = self._execute_request(request, headers=Encoding.API_HEADER)
+        results = self._execute_request(json, headers=Encoding.API_HEADER)
         return results
-
-    # === Property Settings ===
-    # property naming constructs strictly adhere to Encoding.com JSON template definitions
-
-    @property
-    def user_id(self):
-        return self._user_id
-
-    @user_id.setter
-    def user_id(self, value: str):
-        if value:
-            self._user_id = value
-        else:
-            raise InvalidIdentity('user_id')
-
-    @property
-    def user_key(self):
-        return self._user_key
-
-    @user_key.setter
-    def user_key(self, value: str):
-        if value:
-            self._user_key = value
-        else:
-            raise InvalidIdentity('user_key')
-
-    @property
-    def region(self):
-        return self._region
-
-    @region.setter
-    def region(self, value: str):
-        """
-        ref: http://api.encoding.com/#Global Processing Regions
-
-        :param value: str
-            desired region for processing
-        :return:
-        """
-
-        valid_regions = {
-            'us-east-1': '', 'us-west-1': '', 'us-west-2': '', 'eu-west-1': '',
-            'ap-southeast-1': '', 'ap-southeast-2': '', 'ap-northeast-1': '', 'sa-east-1': ''}
-
-        if value in valid_regions:
-            self._region = value
-        else:
-            raise InvalidParameterError('region')
-
-    @property
-    def instant(self):
-        return self._instant
-
-    @instant.setter
-    def instant(self, value: str):
-        """
-        Set the prcessing mode to instant.
-
-        :param value: str
-        :return:
-        """
-        # TODO: dont know if these valus are correct as there is no template definition or API spec documented
-        valid_instant = ['yes', 'no']
-        if value in valid_instant:
-            self._instant = value
-        else:
-            raise InvalidParameterError('instant')
-
-    @property
-    def source(self):
-        return self._source
-
-    @source.setter
-    def source(self, value: str):
-        """
-        Source must adhere to one of the specified acceptable URI designation (ie. http/sftp/...)
-
-        ref: http://api.encoding.com/#SourceMediaLocation
-
-        :param value:
-        :return:
-        """
-        valid_source = {
-            'http': '', 'https': '', 'ftp': '', 'sftp': '', 'fasp': '', 'swift': ''
-        }
-
-        uri = value.lower()
-        index = uri.find('://')
-        if -1 == index:
-            raise InvalidParameterError('source does not have a proper protocol designation')
-        else:
-            protocol = uri[0:index]
-            if protocol in valid_source:
-                self._source = uri
-            else:
-                raise InvalidParameterError('Invalid protocol found: %s' % protocol)
-
-    @property
-    def mediaid(self):
-        return self._mediaid
-
-    @mediaid.setter
-    def mediaid(self, value: list):
-        """
-        List of media ids
-
-        :param value: list
-            python list of media IDs
-        :return:
-        """
-        self._mediaid = '.'.join(value)
-
-    @property
-    def notify_format(self):
-        return self._notification_format
-
-    @notify_format.setter
-    def notify_format(self, value):
-        """
-        Notification format
-
-        :param value:
-        :return:
-        """
-        valid_notify_format = ['xml','json']
-
-        if value in valid_notify_format:
-            self.notify_format = value
-        else:
-            raise InvalidParameterError('notify_format')
-
-    @property
-    def notify(self):
-        return self._notify
-
-    @notify.setter
-    def notify(self, value):
-        valid_notify = {
-            'http': '', 'https': '', 'mailto': ''
-        }
-        if value in valid_notify:
-            self._notify = value
-        else:
-            raise InvalidParameterError('notify')
-
-    @property
-    def notify_encoding_errors(self):
-        return self._notify_encoding_errors
-
-    @notify_encoding_errors.setter
-    def notify_encoding_errors(self, value):
-        # TODO: ensure that this is urlencode
-        self._notify_encoding_errors = value
-
-    @property
-    def notify_upload(self):
-        return self._notify_upload
-
-    @notify_upload.setter
-    def notify_upload(self, value):
-        # TODO: ensure that this is urlencode
-        self._notify_upload = value
-
-    @property
-    def format(self):
-        return self._format
-
-    @format.setter
-    def format(self, value):
-        if isinstance(value, Format):
-            self._format = value
-        else:
-            raise InvalidParameterError('format')
 
     # TODO: use Requests and move this elsewhere
     def _execute_request(self, json_data, headers, path='', method='POST'):
@@ -401,7 +222,6 @@ class Encoding(object):
 if __name__ == '__main__':
     service = Encoding('id', 'key')
 
-    service.source = 'http://snwatsonclientuploads.s3.amazonaws.com/gj6244b1ngq7o9-1.mp4'
-    service.add_media()
+    # service.add_media(source='http://snwatsonclientuploads.s3.amazonaws.com/gj6244b1ngq7o9-1.mp4')
 
-    # service.get_media_info(mediaid=['1', '2'])
+    service.get_media_info(mediaid=['1', '2'])
