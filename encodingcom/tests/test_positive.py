@@ -5,7 +5,6 @@ Positive and Negative tests
 
 from unittest import TestCase
 
-from exceptions import InvalidParameterError
 from encoding import Encoding
 
 
