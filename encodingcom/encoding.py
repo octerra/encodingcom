@@ -7,7 +7,7 @@ from urllib.parse import urlencode
 from json import dumps
 
 from exceptions import InvalidParameterError, InvalidIdentity
-
+from format import Format
 
 class Encoding(object):
     """
@@ -16,12 +16,7 @@ class Encoding(object):
     """
 
     ENCODING_API_URL = 'manage.encoding.com'
-    ENCODING_API_HEADERS = {'Content-Type': 'application/x-www-form-urlencoded'}
-
-    VALID_REGIONS = ['us-east-1', 'us-west-1', 'us-west-2', 'eu-west-1',
-                     'ap-southeast-1', 'ap-southeast-2', 'ap-northeast-1', 'sa-east-1']
-
-    VALID_FORMATS = ['xml','json']
+    API_HEADER = {'Content-Type': 'application/x-www-form-urlencoded'}
 
     # === default settings ===
     # encoding.com default processing is us-east-1 if not specified, we choose Northern California for default
@@ -30,6 +25,15 @@ class Encoding(object):
 
     default_notification_format = 'json'
 
+    # http://help.encoding.com/knowledge-base/article/what-is-instant-mode/
+    # Initiate the processing to instant/immediately even though when the source media is still uploading
+    default_instant = 'no'
+
+    # === Standard Query template ===
+
+    QUERY_TEMPLATE = {
+        'query': {}
+    }
 
     # adhere to: http://api.encoding.com/#ActionList
     ACTIONS = {
@@ -48,43 +52,8 @@ class Encoding(object):
         'StopMedia': ''
     }
 
-    # adhere to: http://api.encoding.com/#SourceMediaLocation
-    SOURCE_MEDIA_LOCATION = {
-        'HTTP': '',
-        'FTP': '',
-        'SFTP': '',
-        'S3': '',
-        'Rackspace CloudFiles': '',
-        'Aspera Server': '',
-        'Windows Azure Blob': '',
-        'OpenStack Cloud Storage': ''
-    }
-
     # ref: http://api.encoding.com/#VideoSettings
     # client specifying a codec without the explicit codec setting will use the default codec detailed in encoding.com
-    VIDEO_CODEC = {
-        'flv': {'flv': '', 'libx264': '', 'vp6': ''},
-        'fl9': {'libx264': ''},
-        'wmv': {'wmv2': '', 'msmpeg4': ''},
-        'zune': {'wmv2': '', 'msmpeg4': ''},
-        '3gp': {'h263': '', 'mpeg4': '', 'libx264': ''},
-        'android': {'h263': '', 'mpeg4': '', 'libx264': ''},
-        'm4v': {'mpeg4': ''},
-        'ipod': {'mpeg4': '', 'libx264': ''},
-        'iphone': {'mpeg4': '', 'libx264': ''},
-        'appletv': {'mpeg4': '', 'libx264': ''},
-        'psp': {'mpeg4': '', 'libx264': ''},
-        'mp4': {'mpeg4': '', 'libx264': '', 'hevc': ''},
-        'ogg': {'libtheora': ''},
-        'webm': {'libvpx': ''},
-        'mp3': {},
-        'wma': {},
-        'mpeg2': {'mpeg2video': ''},
-        'mpeg1': {'mpeg1video': ''},
-        'mov': {'mpeg4': '', 'libx264': '', 'xdcam': '', 'dvcpro': '', 'dvcpro50': '', 'dvcprohd': '', 'mjpeg': ''},
-        'mpegts': {'libx264': '', 'mpeg2video': ''},
-        'mxf': {'dvcpro': '', 'dvcpro50': '', 'dvcprohd': '', 'xdcamhd422': ''}
-    }
 
 
     def __init__(self, user_id: str, user_key: str,
@@ -127,32 +96,73 @@ class Encoding(object):
         """
         self.region = Encoding.default_region
         self.notification_format = Encoding.default_notification_format
+        self.instant = Encoding.default_instant
 
-    def get_media_info(self, ids=None, headers=''):
+    def setup_core_request(self, action: str) -> dict:
         """
+        Setup the core request body specifics
+
+        :param action: str
+            Action to be performed
+
+        :return: dictionary with the core request required components
+        :rtype: dict
+        """
+
+        query = Encoding.QUERY_TEMPLATE.copy()
+        body = {'userid': self.user_id,
+                'userkey': self.user_key,
+                'action': action}
+        query['query'] = body
+        return query
+
+    def setup_request(self, action: str, required_keys: list, **kwargs):
+        """
+        Generic setup request for delivery to encoding.com
+
+        :param action: str
+            action desired
+        :param required_keys: list
+            List of required keys.  Ensures that all the keys has been defined by the client
+        :param kwargs: dict
+            Arguments provided by the client
+        :return:
+            dict representing the built request
+        :rtype: dict
+        """
+
+        request = self.setup_core_request(action)
+
+        for key in required_keys:
+            value = kwargs.get(key)
+            if value:
+                self.__setattr__(key, kwargs[key])
+                request['query'][key] = getattr(self, key)
+            else:
+                raise InvalidParameterError(key)
+
+    # def get_media_info(self, ids=None, headers=''):
+    def get_media_info(self, **kwargs):
+        """
+
+        ref: http://api.encoding.com/#APIResponses_GetMediaInfo
 
         :param ids:
-        :param headers:
         :return:
         """
-        if not ids:
-            ids = []
-        if not headers:
-            headers = Encoding.ENCODING_API_HEADERS
 
-        fields = {'userid': self.user_id,
-                  'userkey': self.user_key,
-                  'action': 'GetMediaInfo',
-                  'mediaid': ','.join(ids)}
+        required_keys = ['mediaid']
 
-        dq = dict()
-        dq['query'] = fields
-        query = dumps(dq)
+        request = self.setup_request('GetMediaInfo', required_keys, **kwargs)
+        json = dumps(request)
 
-        results = self._execute_request(query, headers)
+        results = self._execute_request(json, Encoding.API_HEADER)
+
+        # TODO: process and handle results for errors, and map them to appropriate response for clients
+
         return results
 
-    def get_status(self, ids=None, extended='no', headers=ENCODING_API_HEADERS):
+    def get_status(self, ids=None, extended='no', headers=API_HEADER):
         """
 
         :param ids:
@@ -176,37 +186,20 @@ class Encoding(object):
         results = self._execute_request(query, headers)
         return results
 
-    def add_media(self, source=None, notify='', notify_format='', formats=None,
-                  instant='no', headers=ENCODING_API_HEADERS):
+    # def add_media(self, source=None, notify='', notify_format='', formats=None,
+    #               instant='no', headers=ENCODING_API_HEADERS):
+
+    def add_media(self, **kwargs):
         """
 
-        :param source:
-        :param notify:
-        :param notify_format:
-        :param formats:
-        :param instant:
-        :param headers:
+
         :return:
         """
-        if not source:
-            source = []
-        if not formats:
-            formats = []
+        required_keys = ['source', 'notify', 'notify_format', 'format']
 
-        fields = {'userid': self.user_id,
-                  'userkey': self.user_key,
-                  'action': 'AddMedia',
-                  'source': source,
-                  'notify': notify,
-                  'notify_format': notify_format,
-                  'instant': instant,
-                  'format': formats}
+        request = self.setup_request('AddMedia', required_keys, **kwargs)
 
-        dq = dict()
-        dq['query'] = fields
-        query = dumps(dq)
-
-        results = self._execute_request(query, headers)
+        results = self._execute_request(request, headers=Encoding.API_HEADER)
         return results
 
     # === Property Settings ===
@@ -217,42 +210,127 @@ class Encoding(object):
         return self._user_id
 
     @user_id.setter
-    def user_id(self, value):
+    def user_id(self, value: str):
         if value:
             self._user_id = value
         else:
-            raise InvalidIdentity(value)
+            raise InvalidIdentity('user_id')
 
     @property
     def user_key(self):
         return self._user_key
 
     @user_key.setter
-    def user_key(self, value):
+    def user_key(self, value: str):
         if value:
             self._user_key = value
         else:
-            raise InvalidIdentity(value)
+            raise InvalidIdentity('user_key')
 
     @property
     def region(self):
         return self._region
 
     @region.setter
-    def region(self, value):
-        # everything has defaults, use iff valid
-        if value in Encoding.VALID_REGIONS:
+    def region(self, value: str):
+        """
+        ref: http://api.encoding.com/#Global Processing Regions
+
+        :param value: str
+            desired region for processing
+        :return:
+        """
+
+        valid_regions = {
+            'us-east-1': '', 'us-west-1': '', 'us-west-2': '', 'eu-west-1': '',
+            'ap-southeast-1': '', 'ap-southeast-2': '', 'ap-northeast-1': '', 'sa-east-1': ''}
+
+        if value in valid_regions:
             self._region = value
+        else:
+            raise InvalidParameterError('region')
 
     @property
-    def notification_format(self):
+    def instant(self):
+        return self._instant
+
+    @instant.setter
+    def instant(self, value: str):
+        """
+        Set the prcessing mode to instant.
+
+        :param value: str
+        :return:
+        """
+        # TODO: dont know if these valus are correct as there is no template definition or API spec documented
+        valid_instant = ['yes', 'no']
+        if value in valid_instant:
+            self._instant = value
+        else:
+            raise InvalidParameterError('instant')
+
+    @property
+    def source(self):
+        return self._source
+
+    @source.setter
+    def source(self, value: str):
+        """
+        Source must adhere to one of the specified acceptable URI designation (ie. http/sftp/...)
+
+        ref: http://api.encoding.com/#SourceMediaLocation
+
+        :param value:
+        :return:
+        """
+        valid_source = {
+            'http': '', 'https': '', 'ftp': '', 'sftp': '', 'fasp': '', 'swift': ''
+        }
+
+        uri = value.lower()
+        index = uri.find('://')
+        if -1 == index:
+            raise InvalidParameterError('source does not have a proper protocol designation')
+        else:
+            protocol = uri[0:index]
+            if protocol in valid_source:
+                self._source = uri
+            else:
+                raise InvalidParameterError('Invalid protocol found: %s' % protocol)
+
+    @property
+    def mediaid(self):
+        return self._mediaid
+
+    @mediaid.setter
+    def mediaid(self, value: list):
+        """
+        List of media ids
+
+        :param value: list
+            python list of media IDs
+        :return:
+        """
+        self._mediaid = '.'.join(value)
+
+    @property
+    def notify_format(self):
         return self._notification_format
 
-    @notification_format.setter
-    def notification_format(self, value):
-        # everything has defaults, use iff valid
-        if value in Encoding.VALID_FORMATS:
-            self._notification_format = value
+    @notify_format.setter
+    def notify_format(self, value):
+        """
+        Notification format
+
+        :param value:
+        :return:
+        """
+        valid_notify_format = ['xml','json']
+
+        if value in valid_notify_format:
+            self.notify_format = value
+        else:
+            raise InvalidParameterError('notify_format')
 
     @property
     def notify(self):
@@ -260,8 +338,13 @@ class Encoding(object):
 
     @notify.setter
     def notify(self, value):
-        # TODO: ensure that this is urlencode
-        self._notify = value
+        valid_notify = {
+            'http': '', 'https': '', 'mailto': ''
+        }
+        if value in valid_notify:
+            self._notify = value
+        else:
+            raise InvalidParameterError('notify')
 
     @property
     def notify_encoding_errors(self):
@@ -282,36 +365,15 @@ class Encoding(object):
         self._notify_upload = value
 
     @property
-    def video_codec(self):
-        return self._video_codec
+    def format(self):
+        return self._format
 
-    @video_codec.setter
-    def video_codec(self, value: str):
-        """
-        :param value: str
-            Video codec setting is a string comprised of a valid "codec type:encoder"
-            For example:
-            "mov:libx264" specifies an exact video codec and libx264 encoder used for mov format.
-            "mov" without a explicit encoder specification results in using the default format used for "mov".
-                In this case, the default is "mpeg4"
-
-        :return: None
-        """
-        parts = value.split(':')
-        if 1 == len(parts):
-            # use the default format
-            if value not in Encoding.VIDEO_CODEC:
-                raise InvalidParameterError(value)
-        elif 2 == len(parts):
-            encoder_type = parts[0]
-            encoder = parts[1]
-            try:
-                result = Encoding.VIDEO_CODEC[encoder_type][encoder]
-            except KeyError:
-                raise InvalidParameterError(value)
+    @format.setter
+    def format(self, value):
+        if isinstance(value, Format):
+            self._format = value
         else:
-            raise InvalidParameterError('Incorrect video codec parameter designation')
-
+            raise InvalidParameterError('format')
 
     # TODO: use Requests and move this elsewhere
     def _execute_request(self, json_data, headers, path='', method='POST'):
@@ -337,4 +399,9 @@ class Encoding(object):
 
 
 if __name__ == '__main__':
-    service = Encoding('my_id', 'my_key')
+    service = Encoding('33524', '151ff24e4fcf5f18b33468d129bd36c7')
+
+    service.source = 'http://snwatsonclientuploads.s3.amazonaws.com/gj6244b1ngq7o9-1.mp4'
+    service.add_media()
+
+    # service.get_media_info(mediaid=['1', '2'])
