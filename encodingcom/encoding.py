@@ -6,7 +6,7 @@ from http.client import HTTPConnection
 from urllib.parse import urlencode
 from json import dumps
 
-from exceptions import InvalidParameterError, InvalidIdentity
+from exception import InvalidParameterError, InvalidIdentity
 from format import Format
 
 class Encoding(object):
