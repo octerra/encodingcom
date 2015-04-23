@@ -138,7 +138,8 @@ class Encoding(object):
         :return:
         """
 
-        if type(kwargs['mediaid']) is list:
+        mediaid = kwargs.get('mediaid')
+        if mediaid and type(mediaid) is list:
             # client passed in a Python list, change the format to what encoding.com expects
             kwargs['extended'] = True
             kwargs['mediaid'] = ','.join(kwargs['mediaid'])
@@ -162,6 +163,8 @@ class Encoding(object):
 
         results = self._execute_request(json, headers=Encoding.API_HEADER)
         return results
+
+    # ===== Internal Methods =====
 
     def _post_request(self, json_data, header=None) -> (int, str):
         """
