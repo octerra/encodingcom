@@ -116,79 +116,7 @@ class Encoding(object):
         self.notify_encoding_errors = error_url
 
         # all other values that can be defaulted
-        self.setup_defaults()
-
-    def setup_defaults(self):
-        """
-        Setup instance object to reflect client settings
-        Only specify default settings that falls in this criteria:
-         * override the default natural Encoding.com defaults
-         * hidden or non documented settings
-
-        client can override these settings with explicit property setters after construction of object
-
-        :return: None
-        """
-        self.notification_format = Encoding.default_notification_format
-        self.instant = Encoding.default_instant
-
-    @staticmethod
-    def check_requirements(required_params: list, **kwargs) -> bool:
-        """
-        Ensure that all the required parameters are found.
-        Throws an exception if not found to tell the caller the call is malformed.
-
-        :param **kwargs:
-            Client API invocation arguments
-        :param required_params: list
-
-        :return: True if all the params has been found
-        :rtype: bool
-        """
-        for param in required_params:
-            if param not in kwargs:
-                raise InvalidParameterError('Missing parameter: %s' % param)
-        return True
-
-    def setup_core_request(self, action: str) -> dict:
-        """
-        Setup the core request body specifics
-
-        :param action: str
-            Action to be performed
-
-        :return: dictionary with the core request required components
-        :rtype: dict
-        """
-
-        query = Encoding.QUERY_TEMPLATE.copy()
-        body = {'userid': self.user_id,
-                'userkey': self.user_key,
-                'notify_format': Encoding.default_notification_format,
-                'action': action}
-        query['query'] = body
-        return query
-
-    def setup_request(self, action: str, **kwargs) -> dict:
-        """
-        Generic setup request for delivery to encoding.com
-
-        :param action: str
-            action desired
-        :param kwargs: dict
-            Arguments provided by the client
-        :return:
-            dict representing the built request
-        :rtype: dict
-        """
-
-        request = self.setup_core_request(action)
-
-        query_dict = request['query']
-        for key in kwargs:
-            query_dict[key] = kwargs[key]
-
-        return request
+        self._setup_defaults()
 
     # def get_media_info(self, ids=None, headers=''):
     def get_media_info(self, **kwargs):
@@ -201,51 +129,35 @@ class Encoding(object):
         """
 
         REQUIRED = ['mediaid']
-        self.check_requirements(REQUIRED, **kwargs)
+        return self._request('GetMediaInfo', REQUIRED, **kwargs)
 
-        request = self.setup_request('GetMediaInfo', **kwargs)
-        json = dumps(request)
-
-        # results = self._execute_request(json, Encoding.API_HEADER)
-        result = self._post_request(json)
-        ErrorHandler.process(result)
-
-        return result
-
-    def get_status(self, ids=None, extended='no', headers=API_HEADER):
+    def get_status(self, **kwargs):
         """
+        Retrieve status of the one or more jobs.
 
-        :param ids:
-        :param extended:
-        :param headers:
         :return:
         """
-        if not ids:
-            ids = []
 
-        fields = {'userid': self.user_id,
-                  'userkey': self.user_key,
-                  'action': 'GetStatus',
-                  'extended': extended,
-                  'mediaid': ','.join(ids)}
+        if type(kwargs['mediaid']) is list:
+            # client passed in a Python list, change the format to what encoding.com expects
+            kwargs['extended'] = True
+            kwargs['mediaid'] = ','.join(kwargs['mediaid'])
+        else:
+            # take the input from client as is
+            pass
 
-        dq = dict()
-        dq['query'] = fields
-        query = dumps(dq)
-
-        results = self._execute_request(query, headers)
-        return results
+        REQUIRED = ['mediaid']
+        return self._request('GetStatus', REQUIRED, **kwargs)
 
     # def add_media(self, source=None, notify='', notify_format='', formats=None,
     #               instant='no', headers=ENCODING_API_HEADERS):
-
     def add_media(self, **kwargs):
         """
 
 
         :return:
         """
-        request = self.setup_request('AddMedia', **kwargs)
+        request = self._setup_request('AddMedia', **kwargs)
         json = dumps(request)
 
         results = self._execute_request(json, headers=Encoding.API_HEADER)
@@ -281,9 +193,106 @@ class Encoding(object):
             response = ex.response
             # TODO: Better handling
 
+    def _setup_core_request(self, action: str) -> dict:
+        """
+        Setup the core request body specifics
+
+        :param action: str
+            Action to be performed
+
+        :return: dictionary with the core request required components
+        :rtype: dict
+        """
+
+        query = Encoding.QUERY_TEMPLATE.copy()
+        body = {'userid': self.user_id,
+                'userkey': self.user_key,
+                'notify_format': Encoding.default_notification_format,
+                'action': action}
+        query['query'] = body
+        return query
+
+    def _setup_request(self, action: str, **kwargs) -> dict:
+        """
+        Generic setup request for delivery to encoding.com
+
+        :param action: str
+            action desired
+        :param kwargs: dict
+            Arguments provided by the client
+        :return:
+            dict representing the built request
+        :rtype: dict
+        """
+
+        request = self._setup_core_request(action)
+
+        query_dict = request['query']
+        for key in kwargs:
+            query_dict[key] = kwargs[key]
+
+        return request
+
+    def _request(self, action: str, requirements: [str], **kwargs):
+        """
+        Package and execute the request to encoding.com
+
+        :param action:
+        :param requirements: [str]
+            List of required dictionary data to be found in following kwargs
+        :param kwargs:
+            Variable arguments from the client
+        :return:
+        """
+        self._check_requirements(requirements, **kwargs)
+
+        request = self._setup_request(action, **kwargs)
+        json = dumps(request)
+
+        # results = self._execute_request(json, Encoding.API_HEADER)
+        result = self._post_request(json)
+        ErrorHandler.process(result)
+
+        return result
+
+    def _setup_defaults(self):
+        """
+        Setup instance object to reflect client settings
+        Only specify default settings that falls in this criteria:
+         * override the default natural Encoding.com defaults
+         * hidden or non documented settings
+
+        client can override these settings with explicit property setters after construction of object
+
+        :return: None
+        """
+        self.notification_format = Encoding.default_notification_format
+        self.instant = Encoding.default_instant
+
+    @staticmethod
+    def _check_requirements(required_params: list, **kwargs) -> bool:
+        """
+        Ensure that all the required parameters are found.
+        Throws an exception if not found to tell the caller the call is malformed.
+
+        :param **kwargs:
+            Client API invocation arguments
+        :param required_params: list
+
+        :return: True if all the params has been found
+        :rtype: bool
+        """
+        for param in required_params:
+            if param not in kwargs:
+                raise InvalidParameterError('Missing parameter: %s' % param)
+        return True
+
+
 
 if __name__ == '__main__':
+    # TODO: remove keys before going into Pypi
     service = Encoding('33524', '151ff24e4fcf5f18b33468d129bd36c7')
+
 
     # service.add_media(source='http://snwatsonclientuploads.s3.amazonaws.com/gj6244b1ngq7o9-1.mp4')
 

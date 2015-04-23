@@ -6,7 +6,7 @@ Positive and Negative tests
 from unittest import TestCase
 
 from encoding import Encoding
-from exception import GenericError
+from exception import EncodingErrors
 
 
 class EncodingNegative(TestCase):
@@ -27,15 +27,26 @@ class EncodingNegative(TestCase):
 
     def test_get_media_info(self):
         """
-        Test get media info with bad parameters
+        Negative test for GetMediaInfo:
         * Missing media id from client
         * Invalid media id not found
 
         :return:
         """
-        with self.assertRaises(GenericError):
+        with self.assertRaises(EncodingErrors):
             self.encoding.get_media_info(mediaid=[])
             self.encoding.get_media_info(mediaid=['1', '2'])
+
+    def test_get_status(self):
+        """
+        Negative test for GetStatus:
+        * invalid mediaid using both python list and native encoding.com expected
+
+        :return:
+        """
+        with self.assertRaises(EncodingErrors):
+            self.encoding.get_status(mediaid=['1', '2'])
+            self.encoding.get_status(mediaid='1, 2')
 
 
 if __name__ == '__main__':

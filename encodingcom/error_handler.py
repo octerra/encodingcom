@@ -6,7 +6,7 @@ Maps errors into exceptions for clients to catch
 
 """
 
-from exception import GenericError
+from exception import EncodingErrors
 
 class ErrorHandler(object):
     """
@@ -73,5 +73,5 @@ class ErrorHandler(object):
         if not errors:
             return
 
-        raise GenericError(errors)
+        raise EncodingErrors(errors)
 

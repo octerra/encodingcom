@@ -35,7 +35,7 @@ class InvalidParameterError(EncodingExceptionBase):
         super().__init__(error)
 
 
-class GenericError(EncodingExceptionBase):
+class EncodingErrors(EncodingExceptionBase):
     """
     Given designation is invalid in either parameter or settings.
     Does not match encoding.com allows
