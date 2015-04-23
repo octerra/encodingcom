@@ -128,12 +128,14 @@ class Encoding(object):
         :return:
         """
 
-        REQUIRED = ['mediaid']
-        return self._request('GetMediaInfo', REQUIRED, **kwargs)
+        required = ['mediaid']
+        return self._request('GetMediaInfo', required, **kwargs)
 
     def get_status(self, **kwargs):
         """
-        Retrieve status of the one or more jobs.
+        Returns information about a selected user's media and all its items in the queue.
+        If mediaid in kwargs is a python list,
+            it will be converted to appropriate encoding comma delimited string format
 
         :return:
         """
@@ -147,22 +149,25 @@ class Encoding(object):
             # take the input from client as is
             pass
 
-        REQUIRED = ['mediaid']
-        return self._request('GetStatus', REQUIRED, **kwargs)
+        required = ['mediaid']
+        return self._request('GetStatus', required, **kwargs)
 
     # def add_media(self, source=None, notify='', notify_format='', formats=None,
     #               instant='no', headers=ENCODING_API_HEADERS):
     def add_media(self, **kwargs):
         """
-
+        Add new media to user's queue.
+        Creates new items in a queue according to formats specified in the XML API request.
 
         :return:
         """
-        request = self._setup_request('AddMedia', **kwargs)
-        json = dumps(request)
+        if not kwargs.get('instant'):
+            kwargs['notify_format'] = Encoding.default_instant
 
-        results = self._execute_request(json, headers=Encoding.API_HEADER)
-        return results
+        # notify url is optional as encoding.com will let the target URL know when the job is done
+        # if not specified, it defaults to:
+        required = ['source', 'format']
+        return self._request('GetStatus', required, **kwargs)
 
     # ===== Internal Methods =====
 
@@ -296,8 +301,9 @@ if __name__ == '__main__':
     # TODO: remove keys before going into Pypi
     service = Encoding('33524', '151ff24e4fcf5f18b33468d129bd36c7')
 
+    mp4_libx264 = {'output': 'mp4', 'video_codec': 'libx264'}
+    service.add_media(source=[], format=mp4_libx264)
 
     # service.add_media(source='http://snwatsonclientuploads.s3.amazonaws.com/gj6244b1ngq7o9-1.mp4')
 
-    format_specs = {'output': 'mp4', 'video_codec': 'libx264'}
     # destination_format = {'output': format_specs['output']}

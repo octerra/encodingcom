@@ -14,7 +14,7 @@ class ErrorHandler(object):
     """
 
     @staticmethod
-    def get_errors(response: dict) -> [str]:
+    def get_errors(response: tuple) -> [str]:
         """
         Check and retrieve for existence of any errors from the response dictionary
         If an error is found, return the error(s) as a list, as 1 or more errors can be returned

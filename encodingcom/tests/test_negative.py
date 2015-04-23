@@ -48,6 +48,16 @@ class EncodingNegative(TestCase):
             self.encoding.get_status(mediaid=['1', '2'])
             self.encoding.get_status(mediaid='1, 2')
 
+    def test_add_media(self):
+        """
+
+        :return:
+        """
+        mp4_libx264 = {'output': 'mp4', 'video_codec': 'libx264'}
+
+        with self.assertRaises(EncodingErrors):
+            self.encoding.add_media(source=[], format=mp4_libx264)
+
 
 if __name__ == '__main__':
     from unittest import main
