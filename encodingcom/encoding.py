@@ -1,13 +1,44 @@
 """
+Encoding-py3 service package.
+
+Features:
+
+Core Functionality:
+* Wrap and deliver encoding.com with ease
+* Handle processing of error returns, map to appropriate serviceable python exceptions
+    Many encoding.com 2xx returns are reflection of a successful call, but in actual the call has failed.
+    Handle these contextual error scenarios so client can handle more appropriately
+* Uses JSON for core delivery and response content, much nicer than XML encoding.com defaults
+
+Additional Features:
+* Tracking multiple task IDs (different encoding tasks for the same media ID)
+* Enable clients to reuse the same media id for processing.
+    ref:  UpdateMedia, ProcessMedia, CancelMedia, GetMediaInfo, GetStatus.
+
+Design Principles:
+* No contract enforcements in Encoding.com Request Template, use Encoding.com defaults to be used.
+    If settings are missing from the contents, defaults will be used.
+    Meaning the client has to be aware of the defaults, as default settings will having varying outcomes.
+
+* Basic key guards put into Encoding.com Request Template
+    Minimize number of errors by provision key needed request template needs.
+    Items such as keys, secret, response format, etc are automatically provisioned
+
+*
+
+
 
 """
 
 from http.client import HTTPConnection
 from urllib.parse import urlencode
-from json import dumps
+from json import dumps, loads
+from requests import post
+from requests.models import Response
+from requests.exceptions import HTTPError
 
 from exception import InvalidParameterError, InvalidIdentity
-from format import Format
+from error_handler import ErrorHandler
 
 class Encoding(object):
     """
@@ -71,9 +102,11 @@ class Encoding(object):
         """
 
         if https:
-            self.url = Encoding.ENCODING_API_URL + ':443'
+            self.url = 'https://' + Encoding.ENCODING_API_URL
+            # self.url = Encoding.ENCODING_API_URL + ':443'
         else:
-            self.url = Encoding.ENCODING_API_URL + ':80'
+            self.url = 'http://' + Encoding.ENCODING_API_URL
+            # self.url = Encoding.ENCODING_API_URL + ':80'
 
         # explicit contractual needs from the client
         self.user_id = user_id
@@ -99,6 +132,24 @@ class Encoding(object):
         self.notification_format = Encoding.default_notification_format
         self.instant = Encoding.default_instant
 
+    @staticmethod
+    def check_requirements(required_params: list, **kwargs) -> bool:
+        """
+        Ensure that all the required parameters are found.
+        Throws an exception if not found to tell the caller the call is malformed.
+
+        :param **kwargs:
+            Client API invocation arguments
+        :param required_params: list
+
+        :return: True if all the params has been found
+        :rtype: bool
+        """
+        for param in required_params:
+            if param not in kwargs:
+                raise InvalidParameterError('Missing parameter: %s' % param)
+        return True
+
     def setup_core_request(self, action: str) -> dict:
         """
         Setup the core request body specifics
@@ -113,11 +164,12 @@ class Encoding(object):
         query = Encoding.QUERY_TEMPLATE.copy()
         body = {'userid': self.user_id,
                 'userkey': self.user_key,
+                'notify_format': Encoding.default_notification_format,
                 'action': action}
         query['query'] = body
         return query
 
-    def setup_request(self, action: str, **kwargs):
+    def setup_request(self, action: str, **kwargs) -> dict:
         """
         Generic setup request for delivery to encoding.com
 
@@ -148,14 +200,17 @@ class Encoding(object):
         :return:
         """
 
+        REQUIRED = ['mediaid']
+        self.check_requirements(REQUIRED, **kwargs)
+
         request = self.setup_request('GetMediaInfo', **kwargs)
         json = dumps(request)
 
-        results = self._execute_request(json, Encoding.API_HEADER)
+        # results = self._execute_request(json, Encoding.API_HEADER)
+        result = self._post_request(json)
+        ErrorHandler.process(result)
 
-        # TODO: process and handle results for errors, and map them to appropriate response for clients
-
-        return results
+        return result
 
     def get_status(self, ids=None, extended='no', headers=API_HEADER):
         """
@@ -196,27 +251,35 @@ class Encoding(object):
         results = self._execute_request(json, headers=Encoding.API_HEADER)
         return results
 
-    # TODO: use Requests and move this elsewhere
-    def _execute_request(self, json_data, headers, path='', method='POST'):
+    def _post_request(self, json_data, header=None) -> (int, str):
         """
+        Use request package and send data to the Encoding.com server.
+        Process return results and handle appropriately
 
         :param json_data:
-        :param headers:
-        :param path:
-        :param method:
-        :return:
+        :param header:
+            Header for the request, defaults to standard Encoding API headers
+        :return: tuple consisting of a status code from the call, and the actual content of the response.
+            Encoding.com returns 200 status, but content still reflects errors
+        :rtype: (string, string)
         """
-        # print('json: {0}'.format(json) )
-        params = urlencode({'json': json_data})
+        if not header:
+            header = Encoding.API_HEADER
 
-        conn = HTTPConnection(self.url)
-        conn.request(method, path, params, headers)
-        response = conn.getresponse()
-        # TODO: Better handling of response, ie. errors
-        data = response.read()
-        conn.close()
+        try:
+            # all JSON data needs to be wrapped within 'json' dict in the body
+            data = {'json': json_data}
 
-        return data
+            response = post(self.url, data=data, headers=header)
+            status_code = response.status_code
+            content = response.content.decode('utf-8')
+            content = loads(content)
+
+            return status_code, content
+        except HTTPError as ex:
+            status_code = ex.response.status_code
+            response = ex.response
+            # TODO: Better handling
 
 
 if __name__ == '__main__':
@@ -224,4 +287,5 @@ if __name__ == '__main__':
 
     # service.add_media(source='http://snwatsonclientuploads.s3.amazonaws.com/gj6244b1ngq7o9-1.mp4')
 
-    service.get_media_info(mediaid=['1', '2'])
+    format_specs = {'output': 'mp4', 'video_codec': 'libx264'}
+    # destination_format = {'output': format_specs['output']}

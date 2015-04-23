@@ -35,4 +35,20 @@ class InvalidParameterError(EncodingExceptionBase):
         super().__init__(error)
 
 
+class GenericError(EncodingExceptionBase):
+    """
+    Given designation is invalid in either parameter or settings.
+    Does not match encoding.com allows
+    """
+    def __init__(self, error):
+        """
+
+        :param error:
+            Error can be either a string or a list of errors
+        :return:
+        """
+
+        error = 'Encoding.com error response {0}'.format(error)
+        super().__init__(error)
+
 
