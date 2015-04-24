@@ -149,8 +149,20 @@ class Encoding(object):
         required = ['mediaid']
         return self._request('GetStatus', required, **kwargs)
 
-    # def add_media(self, source=None, notify='', notify_format='', formats=None,
-    #               instant='no', headers=ENCODING_API_HEADERS):
+    # ===== Media APIs =====
+
+    def get_media_list(self, **kwargs) -> (int, dict):
+        """
+        Returns a list of the user's media in the queue.
+        Encoding.com returns list (encapsulated in a dict response) of all the medias it has track of.
+        Keeping the API name consistent with the action:  GetMediaList
+
+        :param kwargs:
+        :return:
+        """
+        required = []
+        return self._request('GetMediaList', required, **kwargs)
+
     def add_media(self, **kwargs) -> (int, dict):
         """
         Add new media to user's queue.
@@ -298,8 +310,14 @@ if __name__ == '__main__':
     # TODO: remove keys before going into Pypi
     service = Encoding('33524', '151ff24e4fcf5f18b33468d129bd36c7')
 
-    mp4_libx264 = {'output': 'mp4', 'video_codec': 'libx264'}
-    service.add_media(source=[], format=mp4_libx264)
+    status, result = service.get_media()
+
+    status, result = service.get_status(mediaid=['38269127'])
+    print(status)
+
+
+    # mp4_libx264 = {'output': 'mp4', 'video_codec': 'libx264'}
+    # service.add_media(source=[], format=mp4_libx264)
 
     # service.add_media(source='http://snwatsonclientuploads.s3.amazonaws.com/gj6244b1ngq7o9-1.mp4')
 
