@@ -37,8 +37,8 @@ from requests import post
 from requests.models import Response
 from requests.exceptions import HTTPError
 
-from encodingcom.error_handler import ErrorHandler
-from encodingcom.exception import InvalidParameterError, InvalidIdentity
+from error_handler import ErrorHandler
+from exception import InvalidParameterError, InvalidIdentity
 
 class Encoding(object):
     """
@@ -166,8 +166,8 @@ class Encoding(object):
 
         # notify url is optional as encoding.com will let the target URL know when the job is done
         # if not specified, it defaults to:
-        required = ['source', 'format']
-        return self._request('GetStatus', required, **kwargs)
+        required = ['source', 'format','destination']
+        return self._request('AddMedia', required, **kwargs)
 
     # ===== Internal Methods =====
 
@@ -302,7 +302,14 @@ if __name__ == '__main__':
     service = Encoding('33524', '151ff24e4fcf5f18b33468d129bd36c7')
 
     mp4_libx264 = {'output': 'mp4', 'video_codec': 'libx264'}
-    service.add_media(source=[], format=mp4_libx264)
+    source = ['https://s3.amazonaws.com/dev.studionow.com/encodingcom_test/Batman+v+Superman+-+Dawn+of+Justice+-+Official+Teaser+Trailer+%5BHD%5D-IwfUnkBfdZ4.mp4']
+    destination = ['ftp://username:password@yourftphost.com/video/encoded/test.mp4']
+
+    result = service.add_media(source=source,
+                               destination=destination,
+                               format=mp4_libx264)
+
+    print(result)
 
     # service.add_media(source='http://snwatsonclientuploads.s3.amazonaws.com/gj6244b1ngq7o9-1.mp4')
 
