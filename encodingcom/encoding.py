@@ -32,11 +32,10 @@ Design Principles:
 
 from json import dumps, loads
 from requests import post
-from requests.models import Response
 from requests.exceptions import HTTPError
 
 from encodingcom.error_handler import ErrorHandler
-from encodingcom.exception import InvalidParameterError, InvalidIdentity
+from encodingcom.exception import InvalidParameterError
 
 class Encoding(object):
     """
@@ -117,7 +116,7 @@ class Encoding(object):
         self._setup_defaults()
 
     # def get_media_info(self, ids=None, headers=''):
-    def get_media_info(self, **kwargs):
+    def get_media_info(self, **kwargs) -> (int, dict):
         """
 
         ref: http://api.encoding.com/#APIResponses_GetMediaInfo
@@ -129,7 +128,7 @@ class Encoding(object):
         required = ['mediaid']
         return self._request('GetMediaInfo', required, **kwargs)
 
-    def get_status(self, **kwargs):
+    def get_status(self, **kwargs) -> (int, dict):
         """
         Returns information about a selected user's media and all its items in the queue.
         If mediaid in kwargs is a python list,
@@ -152,7 +151,7 @@ class Encoding(object):
 
     # def add_media(self, source=None, notify='', notify_format='', formats=None,
     #               instant='no', headers=ENCODING_API_HEADERS):
-    def add_media(self, **kwargs):
+    def add_media(self, **kwargs)  -> (int, dict):
         """
         Add new media to user's queue.
         Creates new items in a queue according to formats specified in the XML API request.
@@ -239,7 +238,7 @@ class Encoding(object):
 
         return request
 
-    def _request(self, action: str, requirements: [str], **kwargs):
+    def _request(self, action: str, requirements: [str], **kwargs) -> (int, dict):
         """
         Package and execute the request to encoding.com
 
