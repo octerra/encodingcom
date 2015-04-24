@@ -6,7 +6,7 @@ Maps errors into exceptions for clients to catch
 
 """
 
-from exception import EncodingErrors
+from encodingcom.exception import EncodingErrors
 
 class ErrorHandler(object):
     """

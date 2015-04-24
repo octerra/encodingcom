@@ -5,7 +5,7 @@ Positive and Negative tests
 
 from unittest import TestCase
 
-from encoding import Encoding
+from encodingcom.encoding import Encoding
 
 
 class EncodingPositive(TestCase):

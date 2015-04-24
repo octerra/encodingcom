@@ -37,8 +37,8 @@ from requests import post
 from requests.models import Response
 from requests.exceptions import HTTPError
 
-from exception import InvalidParameterError, InvalidIdentity
-from error_handler import ErrorHandler
+from encodingcom.error_handler import ErrorHandler
+from encodingcom.exception import InvalidParameterError, InvalidIdentity
 
 class Encoding(object):
     """

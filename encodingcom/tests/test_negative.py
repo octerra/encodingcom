@@ -5,8 +5,8 @@ Positive and Negative tests
 
 from unittest import TestCase
 
-from encoding import Encoding
-from exception import EncodingErrors
+from encodingcom.encoding import Encoding
+from encodingcom.exception import EncodingErrors
 
 
 class EncodingNegative(TestCase):
