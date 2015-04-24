@@ -151,7 +151,7 @@ class Encoding(object):
 
     # def add_media(self, source=None, notify='', notify_format='', formats=None,
     #               instant='no', headers=ENCODING_API_HEADERS):
-    def add_media(self, **kwargs)  -> (int, dict):
+    def add_media(self, **kwargs) -> (int, dict):
         """
         Add new media to user's queue.
         Creates new items in a queue according to formats specified in the XML API request.
