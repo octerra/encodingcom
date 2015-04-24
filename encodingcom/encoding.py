@@ -30,8 +30,6 @@ Design Principles:
 
 """
 
-from http.client import HTTPConnection
-from urllib.parse import urlencode
 from json import dumps, loads
 from requests import post
 from requests.models import Response
