@@ -6,12 +6,12 @@ def read(file_name):
 
 setup(
     # TODO:  Change the package name to be PEP8 compliant
-    name="encodingcom-py3",
-    version="0.0.6",
+    name="encodingcom",
+    version="0.0.7",
     description="Python 3 wrapper for Encoding.com api",
     license="",
     keywords="encoding.com transcoding",
-    url="https://github.com/studionowinc/encodingcom-py3",
+    url="https://github.com/studionowinc/encodingcom",
     zip_safe=False,
     author="Ryan Stubblefield, David Hwu",
     author_email="pypi@studionow.com",
