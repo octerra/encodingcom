@@ -7,7 +7,7 @@ def read(file_name):
 setup(
     # TODO:  Change the package name to be PEP8 compliant
     name="encodingcom-py3",
-    version="0.0.5",
+    version="0.0.6",
     description="Python 3 wrapper for Encoding.com api",
     license="",
     keywords="encoding.com transcoding",
@@ -20,6 +20,7 @@ setup(
     long_description='Encoding.com service handling (c) StudioNow 2015',
     include_package_data=True,
     install_requires=[
+        'requests>=2.5.1'
     ],
     data_files = ['README.md'],
     classifiers=[
