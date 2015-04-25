@@ -34,13 +34,9 @@ from json import dumps, loads
 from requests import post
 from requests.exceptions import HTTPError
 
-<<<<<<< HEAD
-from error_handler import ErrorHandler
-from exception import InvalidParameterError, InvalidIdentity
-=======
 from encodingcom.error_handler import ErrorHandler
 from encodingcom.exception import InvalidParameterError
->>>>>>> 2d6edeb006e2e3d577400526035777dcb9d70244
+
 
 class Encoding(object):
     """
