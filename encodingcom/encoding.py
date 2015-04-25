@@ -302,7 +302,7 @@ if __name__ == '__main__':
     service = Encoding('33524', '151ff24e4fcf5f18b33468d129bd36c7')
 
     mp4_libx264 = {'output': 'mp4', 'video_codec': 'libx264'}
-    source = ['https://s3.amazonaws.com/dev.studionow.com/encodingcom_test/Batman+v+Superman+-+Dawn+of+Justice+-+Official+Teaser+Trailer+%5BHD%5D-IwfUnkBfdZ4.mp4']
+    source = ['https://s3.amazonaws.com/dev.studionow.com/encodingcom_test/source/test_asset.mp4']
     destination = ['ftp://username:password@yourftphost.com/video/encoded/test.mp4']
 
     result = service.add_media(source=source,

@@ -6,7 +6,7 @@ Positive and Negative tests
 from unittest import TestCase
 
 from encodingcom.encoding import Encoding
-
+from encodingcom.exception import EncodingErrors
 
 class EncodingPositive(TestCase):
     """
@@ -29,7 +29,12 @@ class EncodingPositive(TestCase):
         Test add media call
         :return:
         """
-        pass
+
+        mp4_libx264 = {'output': 'mp4', 'video_codec': 'libx264'}
+        source = ['https://s3.amazonaws.com/dev.studionow.com/encodingcom_test/source/test_asset.mp4']
+        destination = ['https://s3.amazonaws.com/dev.studionow.com/encodingcom_test/destination/test.mp4']
+
+        self.encoding.add_media(source=source, destination=destination, format=mp4_libx264)
 
 
 if __name__ == '__main__':

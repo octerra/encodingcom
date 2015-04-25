@@ -56,7 +56,7 @@ class EncodingNegative(TestCase):
         mp4_libx264 = {'output': 'mp4', 'video_codec': 'libx264'}
 
         with self.assertRaises(EncodingErrors):
-            self.encoding.add_media(source=[], format=mp4_libx264)
+            self.encoding.add_media(source=[], format=mp4_libx264, destination=[])
 
 
 if __name__ == '__main__':
