@@ -30,15 +30,17 @@ Design Principles:
 
 """
 
-from http.client import HTTPConnection
-from urllib.parse import urlencode
 from json import dumps, loads
 from requests import post
-from requests.models import Response
 from requests.exceptions import HTTPError
 
+<<<<<<< HEAD
 from error_handler import ErrorHandler
 from exception import InvalidParameterError, InvalidIdentity
+=======
+from encodingcom.error_handler import ErrorHandler
+from encodingcom.exception import InvalidParameterError
+>>>>>>> 2d6edeb006e2e3d577400526035777dcb9d70244
 
 class Encoding(object):
     """
@@ -119,7 +121,7 @@ class Encoding(object):
         self._setup_defaults()
 
     # def get_media_info(self, ids=None, headers=''):
-    def get_media_info(self, **kwargs):
+    def get_media_info(self, **kwargs) -> (int, dict):
         """
 
         ref: http://api.encoding.com/#APIResponses_GetMediaInfo
@@ -131,7 +133,7 @@ class Encoding(object):
         required = ['mediaid']
         return self._request('GetMediaInfo', required, **kwargs)
 
-    def get_status(self, **kwargs):
+    def get_status(self, **kwargs) -> (int, dict):
         """
         Returns information about a selected user's media and all its items in the queue.
         If mediaid in kwargs is a python list,
@@ -152,9 +154,21 @@ class Encoding(object):
         required = ['mediaid']
         return self._request('GetStatus', required, **kwargs)
 
-    # def add_media(self, source=None, notify='', notify_format='', formats=None,
-    #               instant='no', headers=ENCODING_API_HEADERS):
-    def add_media(self, **kwargs):
+    # ===== Media APIs =====
+
+    def get_media_list(self, **kwargs) -> (int, dict):
+        """
+        Returns a list of the user's media in the queue.
+        Encoding.com returns list (encapsulated in a dict response) of all the medias it has track of.
+        Keeping the API name consistent with the action:  GetMediaList
+
+        :param kwargs:
+        :return:
+        """
+        required = []
+        return self._request('GetMediaList', required, **kwargs)
+
+    def add_media(self, **kwargs) -> (int, dict):
         """
         Add new media to user's queue.
         Creates new items in a queue according to formats specified in the XML API request.
@@ -241,7 +255,7 @@ class Encoding(object):
 
         return request
 
-    def _request(self, action: str, requirements: [str], **kwargs):
+    def _request(self, action: str, requirements: [str], **kwargs) -> (int, dict):
         """
         Package and execute the request to encoding.com
 
@@ -301,6 +315,7 @@ if __name__ == '__main__':
     # TODO: remove keys before going into Pypi
     service = Encoding('33524', '151ff24e4fcf5f18b33468d129bd36c7')
 
+<<<<<<< HEAD
     mp4_libx264 = {'output': 'mp4', 'video_codec': 'libx264'}
     source = ['https://s3.amazonaws.com/dev.studionow.com/encodingcom_test/source/test_asset.mp4']
     destination = ['ftp://username:password@yourftphost.com/video/encoded/test.mp4']
@@ -310,6 +325,16 @@ if __name__ == '__main__':
                                format=mp4_libx264)
 
     print(result)
+=======
+    status, result = service.get_media()
+
+    status, result = service.get_status(mediaid=['38269127'])
+    print(status)
+
+
+    # mp4_libx264 = {'output': 'mp4', 'video_codec': 'libx264'}
+    # service.add_media(source=[], format=mp4_libx264)
+>>>>>>> 2d6edeb006e2e3d577400526035777dcb9d70244
 
     # service.add_media(source='http://snwatsonclientuploads.s3.amazonaws.com/gj6244b1ngq7o9-1.mp4')
 
