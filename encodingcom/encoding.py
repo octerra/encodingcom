@@ -311,7 +311,7 @@ if __name__ == '__main__':
     # TODO: remove keys before going into Pypi
     service = Encoding('33524', '151ff24e4fcf5f18b33468d129bd36c7')
 
-<<<<<<< HEAD
+
     mp4_libx264 = {'output': 'mp4', 'video_codec': 'libx264'}
     source = ['https://s3.amazonaws.com/dev.studionow.com/encodingcom_test/source/test_asset.mp4']
     destination = ['ftp://username:password@yourftphost.com/video/encoded/test.mp4']
@@ -321,17 +321,10 @@ if __name__ == '__main__':
                                format=mp4_libx264)
 
     print(result)
-=======
-    status, result = service.get_media()
 
-    status, result = service.get_status(mediaid=['38269127'])
-    print(status)
+    # status, result = service.get_media()
+    #
+    # status, result = service.get_status(mediaid=['38269127'])
+    # print(status)
 
 
-    # mp4_libx264 = {'output': 'mp4', 'video_codec': 'libx264'}
-    # service.add_media(source=[], format=mp4_libx264)
->>>>>>> 2d6edeb006e2e3d577400526035777dcb9d70244
-
-    # service.add_media(source='http://snwatsonclientuploads.s3.amazonaws.com/gj6244b1ngq7o9-1.mp4')
-
-    # destination_format = {'output': format_specs['output']}
