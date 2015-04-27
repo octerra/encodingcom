@@ -6,7 +6,6 @@
 
 from json import dumps, loads
 from requests import post
-from requests.exceptions import HTTPError
 
 from encodingcom.error_handler import ErrorHandler
 from encodingcom.exception import InvalidParameterError
@@ -139,7 +138,7 @@ class Encoding(object):
 
     # ===== Internal Methods =====
 
-    def _post_request(self, json_data, header=None) -> (int, str):
+    def _post_request(self, json_data, header='') -> (int, dict):
         """
         Use request package and send data to the Encoding.com server.
         Process return results and handle appropriately
@@ -149,7 +148,7 @@ class Encoding(object):
             Header for the request, defaults to standard Encoding API headers
         :return: tuple consisting of a status code from the call, and the actual content of the response.
             Encoding.com returns 200 status, but content still reflects errors
-        :rtype: (string, string)
+        :rtype: (string, dict)
         """
         if not header:
             header = Encoding.API_HEADER
@@ -213,7 +212,8 @@ class Encoding(object):
             List of required dictionary data to be found in following kwargs
         :param kwargs:
             Variable arguments from the client
-        :return:
+        :return: tuple of HTTP status code, result response dictionary
+        :rtype: (int, dict)
         """
         self._check_requirements(requirements, **kwargs)
 
@@ -258,13 +258,12 @@ class Encoding(object):
         return True
 
 
-
 if __name__ == '__main__':
     service = Encoding('id', 'key')
 
     status, result = service.get_media_list()
 
-    status, result = service.get_status(mediaid=['38269127'])
+    status, result = service.get_status(mediaid=['38387213'])
     # status, result = service.get_status(mediaid=['1'])
     print(status, result)
 

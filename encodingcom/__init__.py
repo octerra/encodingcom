@@ -10,6 +10,9 @@ Core Functionality:
     Handle these contextual error scenarios so client can handle more appropriately
 * Uses JSON for core delivery and response content, much nicer than XML encoding.com defaults
     If clients desires XML output, package does NOT currently support this workflow
+* Support Python native types for clients.
+    Package converts python data structures to encodingcom normalized data format.
+    For example:  ['1', '2', '3'] converts to '1, 2, 3'
 
 Design Principles:
 * No contract enforcements in Encoding.com Request Template, enables usage Encoding.com defaults to be used.

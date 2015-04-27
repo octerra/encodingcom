@@ -58,13 +58,13 @@ class ErrorHandler(object):
         return result
 
     @staticmethod
-    def process(response: tuple):
+    def process(response: dict):
         """
         Process any errors detailed in the response.
         Errors found raise an exception with a list of errors
 
-        :param response: tuple
-            Response from encoding.com
+        :param response: dict
+            Response dictionary from encoding.com
         :return: None
         """
         errors = ErrorHandler.get_errors(response)
