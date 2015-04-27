@@ -1,30 +1,4 @@
 """
-Encoding-py3 service package.
-
-Features:
-
-Core Functionality:
-* Wrap and deliver encoding.com with ease
-* Handle processing of error returns, map to appropriate serviceable python exceptions
-    Many encoding.com 2xx returns are reflection of a successful call, but in actual the call has failed.
-    Handle these contextual error scenarios so client can handle more appropriately
-* Uses JSON for core delivery and response content, much nicer than XML encoding.com defaults
-
-Additional Features:
-* Tracking multiple task IDs (different encoding tasks for the same media ID)
-* Enable clients to reuse the same media id for processing.
-    ref:  UpdateMedia, ProcessMedia, CancelMedia, GetMediaInfo, GetStatus.
-
-Design Principles:
-* No contract enforcements in Encoding.com Request Template, use Encoding.com defaults to be used.
-    If settings are missing from the contents, defaults will be used.
-    Meaning the client has to be aware of the defaults, as default settings will having varying outcomes.
-
-* Basic key guards put into Encoding.com Request Template
-    Minimize number of errors by provision key needed request template needs.
-    Items such as keys, secret, response format, etc are automatically provisioned
-
-*
 
 
 
@@ -36,6 +10,7 @@ from requests.exceptions import HTTPError
 
 from encodingcom.error_handler import ErrorHandler
 from encodingcom.exception import InvalidParameterError
+
 
 class Encoding(object):
     """
@@ -55,32 +30,14 @@ class Encoding(object):
     # Initiate the processing to instant/immediately even though when the source media is still uploading
     default_instant = 'no'
 
-    # === Standard Query template ===
+    # === Standard Query template used in ALL core Encodingcom json data structure ===
 
     QUERY_TEMPLATE = {
         'query': {}
     }
 
-    # adhere to: http://api.encoding.com/#ActionList
-    ACTIONS = {
-        'AddMedia': '',
-        'AddMediaBenchmark': '',
-        'UpdateMedia': '',
-        'ProcessMedia': '',
-        'CancelMedia': '',
-        'GetMediaList': '',
-        'GetStatus': '',
-        'GetMediaInfo': '',
-        'GetMediaInfoEx': '',
-        'RestartMedia': '',
-        'RestartMediaErrors': '',
-        'RestartMediaTask': '',
-        'StopMedia': ''
-    }
-
     # ref: http://api.encoding.com/#VideoSettings
     # client specifying a codec without the explicit codec setting will use the default codec detailed in encoding.com
-
 
     def __init__(self, user_id: str, user_key: str,
                  notification_url: str='', error_url: str='',
@@ -151,7 +108,6 @@ class Encoding(object):
         required = ['mediaid']
         return self._request('GetStatus', required, **kwargs)
 
-
     def get_media_list(self, **kwargs) -> (int, dict):
         """
         Returns a list of the user's media in the queue.
@@ -174,7 +130,7 @@ class Encoding(object):
         :return:
         """
         if not kwargs.get('instant'):
-            kwargs['notify_format'] = Encoding.default_instant
+            kwargs['instant'] = Encoding.default_instant
 
         # notify url is optional as encoding.com will let the target URL know when the job is done
         # if not specified, it defaults to:
@@ -198,20 +154,15 @@ class Encoding(object):
         if not header:
             header = Encoding.API_HEADER
 
-        try:
-            # all JSON data needs to be wrapped within 'json' dict in the body
-            data = {'json': json_data}
+        # all JSON data needs to be wrapped within 'json' dict in the body
+        data = {'json': json_data}
 
-            response = post(self.url, data=data, headers=header)
-            status_code = response.status_code
-            content = response.content.decode('utf-8')
-            content = loads(content)
+        response = post(self.url, data=data, headers=header)
+        status_code = response.status_code
+        content = response.content.decode('utf-8')
+        content = loads(content)
 
-            return status_code, content
-        except HTTPError as ex:
-            status_code = ex.response.status_code
-            response = ex.response
-            # TODO: Better handling
+        return status_code, content
 
     def _setup_core_request(self, action: str) -> dict:
         """
@@ -269,7 +220,6 @@ class Encoding(object):
         request = self._setup_request(action, **kwargs)
         json = dumps(request)
 
-        # results = self._execute_request(json, Encoding.API_HEADER)
         status, result = self._post_request(json)
         ErrorHandler.process(result)
 
@@ -314,10 +264,9 @@ if __name__ == '__main__':
 
     status, result = service.get_media_list()
 
-    # status, result = service.get_status(mediaid=['38269127'])
-    status, result = service.get_status(mediaid=['1'])
-    print(status)
-
+    status, result = service.get_status(mediaid=['38269127'])
+    # status, result = service.get_status(mediaid=['1'])
+    print(status, result)
 
     # mp4_libx264 = {'output': 'mp4', 'video_codec': 'libx264'}
     # service.add_media(source=[], format=mp4_libx264)
