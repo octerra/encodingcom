@@ -3,6 +3,7 @@ Unit test for all properties
 Positive and Negative tests
 """
 
+from logging import getLogger
 from unittest import TestCase
 
 from encodingcom.encoding import Encoding
@@ -19,6 +20,8 @@ class EncodingPositive(TestCase):
         Setup a encoding.com object
         :return:
         """
+        self.logger = getLogger()
+
         # TODO: Remove before release to Pypi
         self.encoding = Encoding('user_id', 'user_key')
 
@@ -50,6 +53,37 @@ class EncodingPositive(TestCase):
             if media_id:
                 status, result = self.encoding.get_status(mediaid=media_id)
                 status, result = self.encoding.get_media_info(mediaid=media_id)
+
+        except KeyError:
+            # possible that there are no media currently found in the encoding.com
+            pass
+        except EncodingErrors:
+            self.fail('Encoding Error happened and should not have')
+
+    def test_get_status(self):
+        """
+        Positive test for get_status.
+        1. Single status
+        2. Extended variant of the call to get multiple status(s)
+
+        :return:
+        """
+        status, result = self.encoding.get_media_list()
+        try:
+            medias = result['response']['media']
+
+            # single media id variant
+            status, result = self.encoding.get_status(mediaid=medias[0].get('mediaid'))
+            self.logger.info('Multiple GetStatus (single variant) results:')
+            self.logger.info(result)
+
+            # multiple media id (extended variant of the call)
+            media_ids = []
+            for media in medias:
+                media_ids.append(media.get('mediaid'))
+            status, result = self.encoding.get_status(mediaid=media_ids)
+            self.logger.info('Multiple GetStatus (extended variant) results:')
+            self.logger.info(result)
 
         except KeyError:
             # possible that there are no media currently found in the encoding.com

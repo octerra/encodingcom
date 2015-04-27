@@ -7,6 +7,8 @@
 from json import dumps, loads
 from requests import post
 
+from encodingcom.string_utils import list_to_str
+
 from encodingcom.error_handler import ErrorHandler
 from encodingcom.exception import InvalidParameterError
 
@@ -95,14 +97,10 @@ class Encoding(object):
         :return:
         """
 
-        mediaid = kwargs.get('mediaid')
-        if mediaid and type(mediaid) is list:
-            # client passed in a Python list, change the format to what encoding.com expects
-            kwargs['extended'] = True
-            kwargs['mediaid'] = ','.join(kwargs['mediaid'])
-        else:
-            # take the input from client as is
-            pass
+        kwargs['mediaid'] = list_to_str(kwargs.get('mediaid', ''))
+        if ',' in kwargs['mediaid']:
+            # more than 1 specified, enable the extended flag to reflect
+            kwargs['extended'] = 'yes'
 
         required = ['mediaid']
         return self._request('GetStatus', required, **kwargs)
@@ -115,8 +113,10 @@ class Encoding(object):
 
         :param kwargs:
             Variable list of arguments detailed by the client.
-            Needs to match the
-        :return:
+            Needs to match the request template (via JSON)
+            ref: http://api.encoding.com/#CompleteXMLTemplate
+        :return: HTTP status code, dict response from encoding.com
+        :rtype: (int, dict)
         """
         required = []
         return self._request('GetMediaList', required, **kwargs)
@@ -126,7 +126,12 @@ class Encoding(object):
         Add new media to user's queue.
         Creates new items in a queue according to formats specified in the XML API request.
 
-        :return:
+        :param kwargs:
+            Variable list of arguments detailed by the client.
+            Needs to match the request template (via JSON)
+            ref: http://api.encoding.com/#CompleteXMLTemplate
+        :return: HTTP status code, dict response from encoding.com
+        :rtype: (int, dict)
         """
         if not kwargs.get('instant'):
             kwargs['instant'] = Encoding.default_instant
@@ -135,6 +140,60 @@ class Encoding(object):
         # if not specified, it defaults to:
         required = ['source', 'format']
         return self._request('AddMedia', required, **kwargs)
+
+    def add_media_benchmark(self, **kwargs) -> (int, dict):
+        """
+        Add new media to user's queue and sets a flag to NOT process automatically after downloading
+        Use this call in concert with process_media() to kick off media encoding
+
+        :param kwargs:
+            Variable list of arguments detailed by the client.
+            Needs to match the request template (via JSON)
+            ref: http://api.encoding.com/#CompleteXMLTemplate
+        :return: HTTP status code, dict response from encoding.com
+        :rtype: (int, dict)
+        """
+        if not kwargs.get('instant'):
+            kwargs['instant'] = Encoding.default_instant
+
+        # notify url is optional as encoding.com will let the target URL know when the job is done
+        # if not specified, it defaults to:
+        required = ['source', 'format']
+        return self._request('AddMediaBenchmark', required, **kwargs)
+
+    def process_media(self, **kwargs) -> (int, dict):
+        """
+        Start encoding the previously downloaded media (ones that have been added with an AddMediaBenchmark action).
+
+        :param kwargs:
+            Variable list of arguments detailed by the client.
+            Needs to match the request template (via JSON)
+            ref: http://api.encoding.com/#CompleteXMLTemplate
+        :return: HTTP status code, dict response from encoding.com
+        :rtype: (int, dict)
+        """
+
+        # notify url is optional as encoding.com will let the target URL know when the job is done
+        # if not specified, it defaults to:
+
+        kwargs['mediaid'] = list_to_str(kwargs.get('mediaid', ''))
+
+        required = ['mediaid', 'format']
+        return self._request('ProcessMedia', required, **kwargs)
+
+    def cancel_media(self, **kwargs):
+        """
+
+        :param kwargs:
+        :return:
+        """
+
+        kwargs['mediaid'] = list_to_str(kwargs.get('mediaid', ''))
+
+        required = ['mediaid']
+        return self._request('CancelMedia', required, **kwargs)
+
+
 
     # ===== Internal Methods =====
 
@@ -263,7 +322,9 @@ if __name__ == '__main__':
 
     status, result = service.get_media_list()
 
-    status, result = service.get_status(mediaid=['38387213'])
+    # mp4_libx264 = {'output': 'flv', 'video_codec': 'libx264'}
+    mp4_libx264 = {'output': 'flv'}
+    status, result = service.process_media(mediaid=['38415489'], format=mp4_libx264)
     # status, result = service.get_status(mediaid=['1'])
     print(status, result)
 
