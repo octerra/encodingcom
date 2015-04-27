@@ -1,5 +1,11 @@
-# request template used by encoding.com
-# http://api.encoding.com/#CompleteXMLTemplate
+"""
+request template used by encoding.com
+ref: http://api.encoding.com/#CompleteXMLTemplate
+
+DO NOT import this file as this is here as strictly reference purposes
+
+"""
+
 
 request_template = {
     "query": {
