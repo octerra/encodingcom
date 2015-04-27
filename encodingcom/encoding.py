@@ -134,7 +134,7 @@ class Encoding(object):
         # notify url is optional as encoding.com will let the target URL know when the job is done
         # if not specified, it defaults to:
         required = ['source', 'format']
-        return self._request('GetStatus', required, **kwargs)
+        return self._request('AddMedia', required, **kwargs)
 
     # ===== Internal Methods =====
 
