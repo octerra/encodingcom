@@ -34,7 +34,8 @@ class EncodingPositive(TestCase):
 
     def test_media_apis(self):
         """
-        Positive test for medias already uploaded in encoding.com:
+        Positive test for medias already uploaded in encoding.com
+        by using the 1st found media as a baseline for all API calls
          * get_media_list
          * get_status
          * get_media_info

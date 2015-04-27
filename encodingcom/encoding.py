@@ -115,6 +115,8 @@ class Encoding(object):
         # all other values that can be defaulted
         self._setup_defaults()
 
+    # ===== Media APIs =====
+
     # def get_media_info(self, ids=None, headers=''):
     def get_media_info(self, **kwargs) -> (int, dict):
         """
@@ -149,7 +151,6 @@ class Encoding(object):
         required = ['mediaid']
         return self._request('GetStatus', required, **kwargs)
 
-    # ===== Media APIs =====
 
     def get_media_list(self, **kwargs) -> (int, dict):
         """
@@ -158,6 +159,8 @@ class Encoding(object):
         Keeping the API name consistent with the action:  GetMediaList
 
         :param kwargs:
+            Variable list of arguments detailed by the client.
+            Needs to match the
         :return:
         """
         required = []
@@ -267,10 +270,10 @@ class Encoding(object):
         json = dumps(request)
 
         # results = self._execute_request(json, Encoding.API_HEADER)
-        result = self._post_request(json)
+        status, result = self._post_request(json)
         ErrorHandler.process(result)
 
-        return result
+        return status, result
 
     def _setup_defaults(self):
         """
@@ -309,9 +312,10 @@ class Encoding(object):
 if __name__ == '__main__':
     service = Encoding('id', 'key')
 
-    status, result = service.get_media()
+    status, result = service.get_media_list()
 
-    status, result = service.get_status(mediaid=['38269127'])
+    # status, result = service.get_status(mediaid=['38269127'])
+    status, result = service.get_status(mediaid=['1'])
     print(status)
 
 

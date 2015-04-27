@@ -14,7 +14,7 @@ class ErrorHandler(object):
     """
 
     @staticmethod
-    def get_errors(response: tuple) -> [str]:
+    def get_errors(response: dict) -> [str]:
         """
         Check and retrieve for existence of any errors from the response dictionary
         If an error is found, return the error(s) as a list, as 1 or more errors can be returned
@@ -39,19 +39,17 @@ class ErrorHandler(object):
         result = []
 
         try:
-            for item in response:
-                if type(item) is dict:
-                    # all the details are encapsulated in a dict
-                    for key in item.keys():
-                        if 'errors' in item[key]:
-                            errors = item[key]['errors']
-                            for error_key in errors.keys():
-                                # there can be > 1 error from encoding.com
-                                result.append(errors[error_key])
-                            return result
-                        else:
-                            # other data can also be found in the response
-                            pass
+            # all the details are encapsulated in a dict
+            for key in response.keys():
+                if 'errors' in response[key]:
+                    errors = response[key]['errors']
+                    for error_key in errors.keys():
+                        # there can be > 1 error from encoding.com
+                        result.append(errors[error_key])
+                    return result
+                else:
+                    # other data can also be found in the response
+                    pass
         except KeyError:
             # Errors needs to follow a specific documented return specifics
             # Processing of the error has changed, likely encoding.com contract changes
