@@ -188,6 +188,7 @@ class Encoding(object):
         :return:
         """
 
+        # TODO:  not yet validated/tested
         kwargs['mediaid'] = list_to_str(kwargs.get('mediaid', ''))
 
         required = ['mediaid']
