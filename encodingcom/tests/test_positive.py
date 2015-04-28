@@ -91,6 +91,14 @@ class EncodingPositive(TestCase):
         except EncodingErrors:
             self.fail('Encoding Error happened and should not have')
 
+    def test_add_media(self):
+        """
+
+        :return:
+        """
+        pass
+
+
 if __name__ == '__main__':
     from unittest import main
 

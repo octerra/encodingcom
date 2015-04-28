@@ -45,8 +45,7 @@ class EncodingNegative(TestCase):
         :return:
         """
         with self.assertRaises(EncodingErrors):
-            self.encoding.get_status(mediaid=['1', '2'])
-            self.encoding.get_status(mediaid='1, 2')
+            self.encoding.get_status(mediaid=[])
 
     def test_add_media(self):
         """

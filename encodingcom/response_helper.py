@@ -3,6 +3,7 @@ Provide a set of util functions to fetch data out from a given response dict.
 
 """
 
+
 def get_response(data: dict) -> dict:
     """
     Retrieve encoding.com standard "response" dict from the given data.
@@ -16,6 +17,7 @@ def get_response(data: dict) -> dict:
         return response
     else:
         return {}
+
 
 def get_media_id(data: dict) -> str:
     """
