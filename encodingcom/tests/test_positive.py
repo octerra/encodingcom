@@ -4,6 +4,7 @@ Positive and Negative tests
 """
 
 from logging import getLogger
+from os import getenv
 from unittest import TestCase
 
 from encodingcom.encoding import Encoding
@@ -22,8 +23,9 @@ class EncodingPositive(TestCase):
         """
         self.logger = getLogger()
 
-        # TODO: Remove before release to Pypi
-        self.encoding = Encoding('user_id', 'user_key')
+        user_id = getenv('ENCODING_USER_ID')
+        user_key = getenv('ENCODING_USER_KEY')
+        self.encoding = Encoding(user_id, user_key)
 
     def tearDown(self):
         pass

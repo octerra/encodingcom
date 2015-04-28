@@ -319,13 +319,18 @@ class Encoding(object):
 
 
 if __name__ == '__main__':
-    service = Encoding('id', 'key')
+
+    from os import getenv
+
+    user_id = getenv('ENCODING_USER_ID')
+    user_key = getenv('ENCODING_USER_KEY')
+    service = Encoding(user_id, user_key)
 
     status, result = service.get_media_list()
 
     # mp4_libx264 = {'output': 'flv', 'video_codec': 'libx264'}
-    mp4_libx264 = {'output': 'flv'}
-    status, result = service.process_media(mediaid=['38415489'], format=mp4_libx264)
+    # mp4_libx264 = {'output': 'flv'}
+    # status, result = service.process_media(mediaid=['38415489'], format=mp4_libx264)
     # status, result = service.get_status(mediaid=['1'])
     print(status, result)
 

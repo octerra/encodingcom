@@ -3,6 +3,7 @@ Unit test for all properties
 Positive and Negative tests
 """
 
+from os import getenv
 from unittest import TestCase
 
 from encodingcom.encoding import Encoding
@@ -19,8 +20,9 @@ class EncodingNegative(TestCase):
         Setup a encoding.com object
         :return:
         """
-        # TODO: Remove before release to Pypi
-        self.encoding = Encoding('user_id', 'user_key')
+        user_id = getenv('ENCODING_USER_ID')
+        user_key = getenv('ENCODING_USER_KEY')
+        self.encoding = Encoding(user_id, user_key)
 
     def tearDown(self):
         pass
