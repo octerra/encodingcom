@@ -22,6 +22,8 @@ class Encoding(object):
     ENCODING_API_URL = 'manage.encoding.com'
     API_HEADER = {'Content-Type': 'application/x-www-form-urlencoded'}
 
+    EXIT_STATUSES = ['Finished', 'Error', 'Stopped']
+
     # === default settings ===
 
     # encoding.com defaults to xml, we prefer json
@@ -180,6 +182,32 @@ class Encoding(object):
 
         required = ['mediaid', 'format']
         return self._request('ProcessMedia', required, **kwargs)
+
+    def update_media(self, **kwargs) -> (int, dict):
+        """
+        ref: http://api.encoding.com/#ActionList
+        Replace information about existing media's formats.
+        All old format items will be deleted and the new ones will be added
+
+        meaning:
+        All the task id associated with the original job will be deleted.
+        Any current job/taskid in operation WILL be stopped and cancelled
+
+        :param kwargs:
+            Variable list of arguments detailed by the client.
+            Needs to match the request template (via JSON)
+            ref: http://api.encoding.com/#CompleteXMLTemplate
+        :return: HTTP status code, dict response from encoding.com
+        :rtype: (int, dict)
+        """
+
+        # notify url is optional as encoding.com will let the target URL know when the job is done
+        # if not specified, it defaults to:
+
+        kwargs['mediaid'] = list_to_str(kwargs.get('mediaid', ''))
+
+        required = ['mediaid', 'format']
+        return self._request('UpdateMedia', required, **kwargs)
 
     def cancel_media(self, **kwargs):
         """
