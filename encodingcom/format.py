@@ -12,7 +12,8 @@ class Format(object):
     """
 
     @staticmethod
-    def thumbnail(time: str='', video_codec: str='', width: str='', keep_aspect_ratio: bool=True,
+    def thumbnail(destination: str,
+                  time: str='', video_codec: str='', width: str='', keep_aspect_ratio: bool=True,
                   rotate: str='', file_extension: str='jpg'):
         """
         Helper method to build a thumbnail format using the given values.
@@ -37,8 +38,10 @@ class Format(object):
         :return: python dict representing all the keys set needed for thumbnail representation
         :rtype: dict
         """
+
         format = {
             'output': 'thumbnail',
+            'destination': destination,
             'file_extension': file_extension,
             'keep_aspect_ratio': 'yes' if keep_aspect_ratio else 'no'
         }
