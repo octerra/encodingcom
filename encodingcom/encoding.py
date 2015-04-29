@@ -22,7 +22,7 @@ class Encoding(object):
     ENCODING_API_URL = 'manage.encoding.com'
     API_HEADER = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    EXIT_STATUSES = ['Finished', 'Error', 'Stopped']
+    EXIT_STATUSES = frozenset(['Finished', 'Error', 'Stopped'])
 
     # === default settings ===
 
