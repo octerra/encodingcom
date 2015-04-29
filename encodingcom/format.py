@@ -13,8 +13,7 @@ class Format(object):
 
     @staticmethod
     def thumbnail(destination: str,
-                  time: str='', video_codec: str='', width: str='', keep_aspect_ratio: bool=True,
-                  rotate: str='', file_extension: str='jpg'):
+                  time: str='', video_codec: str='', width: str='', keep_aspect_ratio: bool=True, rotate: str=''):
         """
         Helper method to build a thumbnail format using the given values.
         thumbnail is not well documented in the encoding.com API specs,
@@ -23,6 +22,9 @@ class Format(object):
         If any of the fields not specified, uses encoding.com defaults by not detailing it as part of the format data.
         Only key pertinent parts are always provisioned
 
+        :param destination: str
+            Destination URL for the thumbnail image.
+            Client needs to MAKE SURE that all URL details reflects '.jpg', and not any other formats
         :param time: int
             time value represented in seconds
             time can also be represented in a percentage of the entire video length by providing ##%
@@ -33,7 +35,6 @@ class Format(object):
 
         :param keep_aspect_ratio:
         :param rotate:
-        :param file_extension:
 
         :return: python dict representing all the keys set needed for thumbnail representation
         :rtype: dict
@@ -42,7 +43,7 @@ class Format(object):
         format = {
             'output': 'thumbnail',
             'destination': destination,
-            'file_extension': file_extension,
+            'file_extension': 'jpg',
             'keep_aspect_ratio': 'yes' if keep_aspect_ratio else 'no'
         }
         if time:
