@@ -8,7 +8,11 @@ Key Features:
 * Enforce key JSON data needs for success of a call to minimize poorly constructed or 
     missing data components during call
 * Exception handling for all responses
+
 * Standardize on JSON
+* PEP3107 type hinting to ensure contract clarity
+* PEP8 compliant
+* pylint friendly
 
 
 Revision History
@@ -25,6 +29,8 @@ Revision History
 * Exception handling for all responses... as encoding.com embeds all errors within a HTTP status 200 call.
     Not restful or complies with https://tools.ietf.org/html/rfc7231
 * Errors parsed are thrown as exceptions enabling caller to catch and process accordingly
+
+* Many more Actions supported using PEP8 
 
 * Unit tests initial set for positive and negative
     Core and needs to grow more fo
