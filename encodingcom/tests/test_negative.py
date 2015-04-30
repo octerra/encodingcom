@@ -1,6 +1,5 @@
 """
-Unit test for all properties
-Positive and Negative tests
+Negative Unit test for Actions via Encoding class
 """
 
 from os import getenv

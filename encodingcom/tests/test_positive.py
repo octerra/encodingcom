@@ -1,6 +1,5 @@
 """
-Unit test for all properties
-Positive and Negative tests
+Positive Unit test for Actions via Encoding class
 """
 
 from logging import getLogger
@@ -55,9 +54,9 @@ class EncodingPositive(TestCase):
             first_media = medias[0]
             media_id = first_media.get('mediaid')
             if media_id:
-                status, result = self.encoding.get_status(mediaid=media_id)
-                status, result = self.encoding.get_media_info(False, mediaid=media_id)
-                status, result = self.encoding.get_media_info(True, mediaid=media_id)
+                self.encoding.get_status(mediaid=media_id)
+                self.encoding.get_media_info(False, mediaid=media_id)
+                self.encoding.get_media_info(True, mediaid=media_id)
 
         except KeyError:
             # possible that there are no media currently found in the encoding.com
@@ -69,7 +68,6 @@ class EncodingPositive(TestCase):
         except:
             self.fail('Unexpected exception happened, should not happen')
 
-
     def test_get_status(self):
         """
         Positive test for get_status.
@@ -78,9 +76,11 @@ class EncodingPositive(TestCase):
 
         :return:
         """
-        status, result = self.encoding.get_media_list()
         try:
-            medias = result['response']['media']
+            status, response = self.encoding.get_media_list()
+
+            response = get_response(response)
+            medias = response['media']
 
             # single media id variant
             status, result = self.encoding.get_status(mediaid=medias[0].get('mediaid'))
@@ -99,13 +99,18 @@ class EncodingPositive(TestCase):
             # possible that there are no media currently found in the encoding.com
             pass
         except EncodingErrors:
+            # GetStatus should always function, unlike GetMediaInfo...
+            # haven't found a condition where GetStatus fails with an error
             self.fail('Encoding Error happened and should not have')
+        except:
+            self.fail('General exception should not have happened')
 
     def test_add_media(self):
         """
 
         :return:
         """
+        # TODO: need media store, reference and upload to encoding.com
         pass
 
 

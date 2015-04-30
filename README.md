@@ -12,13 +12,18 @@ Key Features:
 * Standardize on JSON
 * PEP3107 type hinting to ensure contract clarity
 * PEP8 compliant
-* pylint friendly
+* pylint friendly:  no error, decent score 8/10
 * Support for python native types, convert to encoding.com specifics when needed.
     List --> "value, value2, value3"
     Bool --> yes/no
 
 
 Revision History
+
+0.1.1
+* More Actions supported, along with extended variants
+* Unit test operational
+* Unit test driven from environment variable to define user id, and key
 
 0.1.0
 * Complete rewrite from original hard contract binding specifics to 
