@@ -24,6 +24,11 @@ class Encoding(object):
 
     EXIT_STATUSES = frozenset(['Finished', 'Error', 'Stopped'])
 
+    # each state represents a given state that a mediaid can be in.
+    # when querying for the status of a mediaid, one of these will be returned
+    STATES = frozenset(['New', 'Downloading', 'Downloaded', 'Ready to process', 'Waiting for encoder',
+                        'Processing', 'Saving', 'Finished', 'Error', 'Stopped'])
+
     # === default settings ===
 
     # encoding.com defaults to xml, we prefer json
@@ -79,52 +84,6 @@ class Encoding(object):
 
     # ===== Media APIs =====
 
-    # def get_media_info(self, ids=None, headers=''):
-    def get_media_info(self, **kwargs) -> (int, dict):
-        """
-
-        ref: http://api.encoding.com/#APIResponses_GetMediaInfo
-
-        :param ids:
-        :return:
-        """
-
-        required = ['mediaid']
-        return self._request('GetMediaInfo', required, **kwargs)
-
-    def get_status(self, **kwargs) -> (int, dict):
-        """
-        Returns information about a selected user's media and all its items in the queue.
-        If mediaid in kwargs is a python list,
-            it will be converted to appropriate encoding comma delimited string format
-
-        :return:
-        """
-
-        kwargs['mediaid'] = list_to_str(kwargs.get('mediaid', ''))
-        if ',' in kwargs['mediaid']:
-            # more than 1 specified, enable the extended flag to reflect
-            kwargs['extended'] = 'yes'
-
-        required = ['mediaid']
-        return self._request('GetStatus', required, **kwargs)
-
-    def get_media_list(self, **kwargs) -> (int, dict):
-        """
-        Returns a list of the user's media in the queue.
-        Encoding.com returns list (encapsulated in a dict response) of all the medias it has track of.
-        Keeping the API name consistent with the action:  GetMediaList
-
-        :param kwargs:
-            Variable list of arguments detailed by the client.
-            Needs to match the request template (via JSON)
-            ref: http://api.encoding.com/#CompleteXMLTemplate
-        :return: HTTP status code, dict response from encoding.com
-        :rtype: (int, dict)
-        """
-        required = []
-        return self._request('GetMediaList', required, **kwargs)
-
     def add_media(self, **kwargs) -> (int, dict):
         """
         Add new media to user's queue.
@@ -165,9 +124,88 @@ class Encoding(object):
         required = ['source', 'format']
         return self._request('AddMediaBenchmark', required, **kwargs)
 
+    def cancel_media(self, **kwargs):
+        """
+        Cancel media and its children taskid jobs
+
+        :param kwargs:
+        :return:
+        """
+
+        # TODO:  not yet validated/tested
+        kwargs['mediaid'] = list_to_str(kwargs.get('mediaid', ''))
+
+        required = ['mediaid']
+        return self._request('CancelMedia', required, **kwargs)
+
+    def get_media_info(self, extended: bool,  **kwargs) -> (int, dict):
+        """
+        Returns video parameters of the specified media when available.
+
+        ref: http://api.encoding.com/#APIResponses_GetMediaInfo
+
+        :param extended: bool
+            Pass true to use the extended variant of the call
+        :param kwargs:
+            Variable list of arguments detailed by the client.
+            Needs to match the request template (via JSON)
+            ref: http://api.encoding.com/#CompleteXMLTemplate
+        :return: HTTP status code, dict response from encoding.com
+        :rtype: (int, dict)
+        """
+
+        # GetMediaInfoEx: Returns additional job information such as status, media file stored source storage, date, etc
+        # GetMediaInfo: Returns just information about the media settings such as framerate, audio, duration, etc
+        # Both calls serves different purposes
+
+        action = 'GetMediaInfoEx' if extended else 'GetMediaInfo'
+
+        required = ['mediaid']
+        return self._request(action, required, **kwargs)
+
+    def get_status(self, **kwargs) -> (int, dict):
+        """
+        Returns information about a selected user's media and all its items in the queue.
+        If mediaid in kwargs is a python list,
+            it will be converted to appropriate encoding comma delimited string format
+
+        :param kwargs:
+            Variable list of arguments detailed by the client.
+            Needs to match the request template (via JSON)
+            ref: http://api.encoding.com/#CompleteXMLTemplate
+        :return: HTTP status code, dict response from encoding.com
+        :rtype: (int, dict)
+        """
+
+        kwargs['mediaid'] = list_to_str(kwargs.get('mediaid', ''))
+        if ',' in kwargs['mediaid']:
+            # more than 1 specified, enable the extended flag to reflect
+            kwargs['extended'] = 'yes'
+
+        required = ['mediaid']
+        return self._request('GetStatus', required, **kwargs)
+
+    def get_media_list(self, **kwargs) -> (int, dict):
+        """
+        Returns a list of the user's media in the queue.
+        Encoding.com returns list (encapsulated in a dict response) of all the medias it has track of.
+
+        :param kwargs:
+            Variable list of arguments detailed by the client.
+            Needs to match the request template (via JSON)
+            ref: http://api.encoding.com/#CompleteXMLTemplate
+        :return: HTTP status code, dict response from encoding.com
+        :rtype: (int, dict)
+        """
+        required = []
+        return self._request('GetMediaList', required, **kwargs)
+
     def process_media(self, **kwargs) -> (int, dict):
         """
         Start encoding the previously downloaded media (ones that have been added with an AddMediaBenchmark action).
+
+        This is paired with AddMediaBenchMark as AddMediaBenchMark action does NOT start the job.
+        Do not use this call with AddMedia, as an error/exception will be thrown.
 
         :param kwargs:
             Variable list of arguments detailed by the client.
@@ -184,6 +222,79 @@ class Encoding(object):
 
         required = ['mediaid', 'format']
         return self._request('ProcessMedia', required, **kwargs)
+
+    def restart_media(self, **kwargs) -> (int, dict):
+        """
+        Complete restart the entire job.
+        All the taskid children will also be restarted
+
+        :param kwargs:
+            Variable list of arguments detailed by the client.
+            Needs to match the request template (via JSON)
+            ref: http://api.encoding.com/#CompleteXMLTemplate
+        :return: HTTP status code, dict response from encoding.com
+        :rtype: (int, dict)
+        """
+        kwargs['mediaid'] = list_to_str(kwargs.get('mediaid', ''))
+
+        required = ['mediaid']
+        return self._request('RestartMedia', required, **kwargs)
+
+    def restart_media_errors(self, **kwargs) -> (int, dict):
+        """
+        Only retry tasks ended with error.
+
+        :param kwargs:
+            Variable list of arguments detailed by the client.
+            Needs to match the request template (via JSON)
+            ref: http://api.encoding.com/#CompleteXMLTemplate
+        :return: HTTP status code, dict response from encoding.com
+        :rtype: (int, dict)
+        """
+        kwargs['mediaid'] = list_to_str(kwargs.get('mediaid', ''))
+
+        required = ['mediaid']
+        return self._request('RestartMediaErrors', required, **kwargs)
+
+    def restart_media_task(self, **kwargs) -> (int, dict):
+        """
+        Restart specific media and taskid parts of the task
+
+        :param kwargs:
+            Variable list of arguments detailed by the client.
+            Needs to match the request template (via JSON)
+            ref: http://api.encoding.com/#CompleteXMLTemplate
+        :return: HTTP status code, dict response from encoding.com
+        :rtype: (int, dict)
+
+        """
+        # TODO: docs isn't clear or provide much details about this...
+        # presumably the taskid belongs in the top level designation as the format already has been provisioned
+
+        kwargs['mediaid'] = list_to_str(kwargs.get('mediaid', ''))
+
+        # TODO: this is not detailed in the request template, so this is an educated guess, needs unit test to prove
+        kwargs['taskid'] = list_to_str(kwargs.get('taskid', ''))
+
+        required = ['mediaid', 'taskid']
+        return self._request('RestartMediaTask', required, **kwargs)
+
+    def stop_media(self, **kwargs) -> (int, dict):
+        """
+        Stop media downloading/processing/uploading.
+        If at least one destination is saved, media will be finished, otherwise it will be stopped.
+
+        :param kwargs:
+            Variable list of arguments detailed by the client.
+            Needs to match the request template (via JSON)
+            ref: http://api.encoding.com/#CompleteXMLTemplate
+        :return: HTTP status code, dict response from encoding.com
+        :rtype: (int, dict)
+        """
+        kwargs['mediaid'] = list_to_str(kwargs.get('mediaid', ''))
+
+        required = ['mediaid']
+        return self._request('StopMedia', required, **kwargs)
 
     def update_media(self, **kwargs) -> (int, dict):
         """
@@ -210,22 +321,6 @@ class Encoding(object):
 
         required = ['mediaid', 'format']
         return self._request('UpdateMedia', required, **kwargs)
-
-    def cancel_media(self, **kwargs):
-        """
-        Cancel media and its children taskss
-
-        :param kwargs:
-        :return:
-        """
-
-        # TODO:  not yet validated/tested
-        kwargs['mediaid'] = list_to_str(kwargs.get('mediaid', ''))
-
-        required = ['mediaid']
-        return self._request('CancelMedia', required, **kwargs)
-
-
 
     # ===== Internal Methods =====
 
@@ -352,22 +447,22 @@ class Encoding(object):
 if __name__ == '__main__':
 
     from os import getenv
+    from encodingcom.response_helper import get_response
 
     user_id = getenv('ENCODING_USER_ID')
     user_key = getenv('ENCODING_USER_KEY')
     service = Encoding(user_id, user_key)
 
-    status, result = service.get_media_list()
+    status, response = service.get_media_list()
+    response = get_response(response)
+    medias = response['media']
+    for media in medias:
+        print(media)
+        print('Media Info for media: %s' % media['mediaid'])
+        status, response = service.get_media_info(False, mediaid=media['mediaid'])
+        response = get_response(response)
+        print(response)
+        print('\n')
 
-    # mp4_libx264 = {'output': 'flv', 'video_codec': 'libx264'}
-    # mp4_libx264 = {'output': 'flv'}
-    # status, result = service.process_media(mediaid=['38415489'], format=mp4_libx264)
-    # status, result = service.get_status(mediaid=['1'])
-    print(status, result)
 
-    # mp4_libx264 = {'output': 'mp4', 'video_codec': 'libx264'}
-    # service.add_media(source=[], format=mp4_libx264)
 
-    # service.add_media(source='http://snwatsonclientuploads.s3.amazonaws.com/gj6244b1ngq7o9-1.mp4')
-
-    # destination_format = {'output': format_specs['output']}

@@ -13,6 +13,9 @@ Key Features:
 * PEP3107 type hinting to ensure contract clarity
 * PEP8 compliant
 * pylint friendly
+* Support for python native types, convert to encoding.com specifics when needed.
+    List --> "value, value2, value3"
+    Bool --> yes/no
 
 
 Revision History
@@ -33,9 +36,10 @@ Revision History
 * Many more Actions supported using PEP8 
 
 * Unit tests initial set for positive and negative
-    Core and needs to grow more fo
+    Core and needs to grow more to accomodate different scenarios.
+    Need more data (image vs. movies)
     
-* Helpers to keep parse and retrieve key content from the encoding.com response
+* Helpers to parse and retrieve key content from the encoding.com response
 
 * Poorly documented thumbnail data specifics now reflect email from devops at encoding.com
 
