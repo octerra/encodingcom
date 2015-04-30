@@ -1,7 +1,7 @@
 """
+Top level import for anyone who wants to use this package.
 
-
-
+from encodingcom.encoding import Encoding
 """
 
 from json import dumps, loads
@@ -46,12 +46,16 @@ class Encoding(object):
                  notification_url: str='', error_url: str='',
                  https: bool=True):
         """
+        Initializes access to package layer service
 
         :param user_id: str
+            Encoding.com client user account id
         :param user_key: str
+            Encoding.com client user account secret/key
         :param notification_url: str
+            Encoding.com calls notification url when a job completion
         :param error_url: str
-
+            Encoding.com calls notification url when a job error out
         :param https: bool
             True (default) matching encoding.com specs to use port 443 to communicate
             False otherwise using port 80
@@ -60,10 +64,8 @@ class Encoding(object):
 
         if https:
             self.url = 'https://' + Encoding.ENCODING_API_URL
-            # self.url = Encoding.ENCODING_API_URL + ':443'
         else:
             self.url = 'http://' + Encoding.ENCODING_API_URL
-            # self.url = Encoding.ENCODING_API_URL + ':80'
 
         # explicit contractual needs from the client
         self.user_id = user_id
@@ -211,6 +213,7 @@ class Encoding(object):
 
     def cancel_media(self, **kwargs):
         """
+        Cancel media and its children taskss
 
         :param kwargs:
         :return:

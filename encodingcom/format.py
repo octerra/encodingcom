@@ -24,7 +24,8 @@ class Format(object):
 
         :param destination: str
             Destination URL for the thumbnail image.
-            Client needs to MAKE SURE that all URL details reflects '.jpg', and not any other formats
+            Client needs to MAKE SURE that all URL details reflects '.jpg' if image is desired
+            TODO: movie thumbnail representing a small time sampling can be supported as well.
         :param time: int
             time value represented in seconds
             time can also be represented in a percentage of the entire video length by providing ##%
