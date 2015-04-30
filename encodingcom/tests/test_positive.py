@@ -9,6 +9,7 @@ from unittest import TestCase
 
 from encodingcom.encoding import Encoding
 from encodingcom.exception import EncodingErrors
+from encodingcom.response_helper import get_response
 
 
 class EncodingPositive(TestCase):
@@ -47,20 +48,27 @@ class EncodingPositive(TestCase):
 
         :return:
         """
-        status, result = self.encoding.get_media_list()
         try:
-            medias = result['response']['media']
+            status, response = self.encoding.get_media_list()
+            response = get_response(response)
+            medias = response['media']
             first_media = medias[0]
             media_id = first_media.get('mediaid')
             if media_id:
                 status, result = self.encoding.get_status(mediaid=media_id)
-                status, result = self.encoding.get_media_info(mediaid=media_id)
+                status, result = self.encoding.get_media_info(False, mediaid=media_id)
+                status, result = self.encoding.get_media_info(True, mediaid=media_id)
 
         except KeyError:
             # possible that there are no media currently found in the encoding.com
             pass
         except EncodingErrors:
-            self.fail('Encoding Error happened and should not have')
+            # Encoding Errors are possible as a job may be in a wierd state (ie. not downloaded)
+            # thus resulting in an error from encoding.com
+            pass
+        except:
+            self.fail('Unexpected exception happened, should not happen')
+
 
     def test_get_status(self):
         """

@@ -154,9 +154,10 @@ class Encoding(object):
         :rtype: (int, dict)
         """
 
-        # GetMediaInfoEx: Returns additional job information such as status, media file stored source storage, date, etc
+        # GetMediaInfoEx: Returns job information such as status, media file stored source storage, date, etc
         # GetMediaInfo: Returns just information about the media settings such as framerate, audio, duration, etc
-        # Both calls serves different purposes
+        # Both calls serves different purposes...
+        # GetMediaInfoEx is NOT a superset of GetMediaInfo as the return data is very different
 
         action = 'GetMediaInfoEx' if extended else 'GetMediaInfo'
 

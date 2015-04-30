@@ -34,7 +34,8 @@ class FormatTests(TestCase):
         """
 
         required = ['output', 'file_extension', 'keep_aspect_ratio']
-        thumbnail = Format.thumbnail()
+        # destination is required for encoding to store the results, otherwise default to encoding.com s3 temp store
+        thumbnail = Format.thumbnail('http://website/destination')
         for item in required:
             if item not in thumbnail:
                 self.fail('Expected key in the thumbnail not found: %s' % item)
