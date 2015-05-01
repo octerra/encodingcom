@@ -26,7 +26,7 @@ class Encoding(object):
 
     # each state represents a given state that a mediaid can be in.
     # when querying for the status of a mediaid, one of these will be returned
-    STATES = frozenset(['New', 'Downloading', 'Downloaded', 'Ready to process', 'Waiting for encoder',
+    STATES = frozenset(['New', 'Downloading', 'Downloaded', 'Ready to process', 'Waitingforencoder',
                         'Processing', 'Saving', 'Finished', 'Error', 'Stopped'])
 
     # === default settings ===
@@ -190,6 +190,8 @@ class Encoding(object):
         """
         Returns a list of the user's media in the queue.
         Encoding.com returns list (encapsulated in a dict response) of all the medias it has track of.
+
+        Note: per time of writing, encoding.com devops tells us that the mediaid span of a 2 week lifespan
 
         :param kwargs:
             Variable list of arguments detailed by the client.
@@ -450,9 +452,7 @@ if __name__ == '__main__':
     from os import getenv
     from encodingcom.response_helper import get_response
 
-    user_id = getenv('ENCODING_USER_ID')
-    user_key = getenv('ENCODING_USER_KEY')
-    service = Encoding(user_id, user_key)
+    service = Encoding(getenv('ENCODING_USER_ID'), getenv('ENCODING_USER_KEY'))
 
     status, response = service.get_media_list()
     response = get_response(response)
