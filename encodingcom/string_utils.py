@@ -4,6 +4,8 @@ String Utilities
 
 """
 
+encoding_bool = lambda input_bool: 'yes' if input_bool else 'no'
+
 
 def list_to_str(data, delimiter: str=',') -> str:
     """
