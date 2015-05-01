@@ -6,7 +6,7 @@ def read(file_name):
 
 setup(
     name="encodingcom",
-    version="0.1.0",
+    version="0.1.2",
     description="Python 3 wrapper for Encoding.com api",
     license="",
     keywords="encoding.com transcoding",

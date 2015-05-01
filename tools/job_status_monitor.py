@@ -1,12 +1,14 @@
 #! /usr/bin/env python
 """
-Monitor the job status for a given mediaid, or the latest job in the queue.
+Monitor the job status for a given mediaid, or the latest mediaid job in the queue.
 
 If the job has finished or exited, the last known state (Finished, Error, Stopped) is reflected.
 Otherwise it will monitor and report the state until in a completed success/error state of the job
 
 USAGE:
     python job_status_monitor --user=1234 --key=abcde
+
+    python job_status_monitor --user=1234 --key=abcde > output.json
 
     flags:
     --user: Required

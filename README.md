@@ -8,6 +8,7 @@ Key Features:
 * Enforce key JSON data needs for success of a call to minimize poorly constructed or 
     missing data components during call
 * Exception handling for all responses
+* Tools to help track status monitor of jobs (mediaid and children taskid)
 
 * Standardize on JSON
 * PEP3107 type hinting to ensure contract clarity
@@ -19,6 +20,11 @@ Key Features:
 
 
 Revision History
+
+0.1.2
+* Poller class to help provide education and status monitor core code
+* New tool "tools/job_status_monitor.py" to track status of mediaid job and report accordingly.
+    Also reports on jobs that have been completed
 
 0.1.1
 * More Actions supported, along with extended variants
