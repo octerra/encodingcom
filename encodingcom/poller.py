@@ -23,7 +23,7 @@ class Poller(object):
     """
 
     @staticmethod
-    def poll_till_status(service: Encoding, media_id: str, callback=None, status='Finished', interval: int=5):
+    def poll_till_status(service: Encoding, media_id: str, callback=None, status='Finished', interval: float=5):
         """
         Continuously update the status of the given media_id until desired state.
         Call the given callback to handle the completion state
@@ -46,7 +46,7 @@ class Poller(object):
         :param status: str
             desired state for callback.
             Should the status not be found, callback will be invoked for either "finished" or "error"
-        :param interval: int
+        :param interval: float
             Interval between each polling operation
 
         :return: last state reflected by GetStatus action
@@ -87,7 +87,7 @@ class Poller(object):
             Error and Finished status also triggers this call as this marks the end of the job and
                 status not encountered during polling
         :param status:
-        :param interval:
+        :param interval: float
             Interval to poll at... some of these states goes by very quickly depending on the encoding.com bandwidth
             Set to spammy 0 if you want to track all the changes
         :return: None
