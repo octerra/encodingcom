@@ -1,27 +1,33 @@
 #! /usr/bin/env python
 """
-Monitor the job status for a given mediaid, or the latest mediaid job in the queue.
+Cancel a specified mediaid job along with all its children.
+Due to minimum documentation on encoding.com.
 
-If the job has finished or exited, the last known state (Finished, Error, Stopped) is reflected.
-Otherwise it will monitor and report the state until in a completed success/error state of the job
+CancelMedia action invoked on a
+
+
+
+
+
+Provided for the following purposes:
+1.) CLI/API control of cancelling a specific mediaid job... use at your own risk.
+2.) Support a function test workflow
+3.) Education purposes as cancel media is unclear for jobs that are completed as this is undocumented.
 
 USAGE:
-    python job_status_monitor --user=1234 --key=abcde
-    Monitor the latest mediaid added to the queue
+    python cancel_media --user=1234 --key=abcde
+    * Cancels the latest mediaid in the queue
 
-    python job_status_monitor --user=1234 --key=abcde --mediaid=123
-    Monitor a specific job with mediaid=123
+    python cancel_media --user=1234 --key=abcde --mediaid=123
+    * Cancels the mediaid with the value of 123
 
-    python job_status_monitor --user=1234 --key=abcde > output.json
 
 """
 
 from argparse import ArgumentParser, Namespace
-from pprint import PrettyPrinter
 
 from encodingcom.encoding import Encoding
 from encodingcom.encoding_utils import get_latest_media
-from encodingcom.poller import Poller
 
 
 def get_args() -> Namespace:
@@ -48,12 +54,6 @@ def get_args() -> Namespace:
             'help': 'Designate a required User Key to access encoding.com'
         },
 
-        '--interval': {
-            'required': False,
-            'help': 'Designates an interval to poll encoding.com for the job status details (in seconds)\n'
-                    'Defaults to 5 seconds if not specified'
-        }
-
     }
 
     parser = ArgumentParser()
@@ -66,28 +66,7 @@ def get_args() -> Namespace:
         # not specified... reflect as this will use the latest encoding mediaid later in the workflow
         args.mediaid = ''
 
-    if not args.interval:
-        args.interval = 5
-
     return args
-
-
-def pretty_print_response(**kwargs):
-    """
-    Use Python standard pprint to output to a nice formatted response from the differing status calls
-
-    :param: **kwargs
-        Key items in the kwargs:
-        media_id: MediaID associated with the Job
-        status: Status / state of the job
-        response:
-    :return:
-    """
-    print('\nMedia ID: %s' % kwargs['media_id'])
-    print(' ==== Status: %s =====' % kwargs['status'])
-
-    pretty = PrettyPrinter()
-    pretty.pprint(kwargs['response'])
 
 
 def main(args: Namespace):
@@ -107,10 +86,9 @@ def main(args: Namespace):
         media_id = args_dict['mediaid']
     else:
         media_id = get_latest_media(encoding)['mediaid']
-        print('MediaId not specified, using the latest media id in the queue: %s' % media_id)
+        print('MediaId not specified, cancelling the media id in the queue: %s' % media_id)
 
-    Poller.poll_status(encoding, media_id=media_id, callback=pretty_print_response,
-                       interval=float(args_dict['interval']))
+    encoding.cancel_media(mediaid=[media_id])
 
 
 if __name__ == '__main__':

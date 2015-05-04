@@ -21,6 +21,10 @@ Key Features:
 
 Revision History
 
+0.1.3
+* tools/cancel_media.py provided as a CLI to help manage/delete items in the queue
+* functional test for CancelMedia action
+
 0.1.2
 * Poller class to help provide education and status monitor core code
 * New tool "tools/job_status_monitor.py" to track status of mediaid job and report accordingly.
