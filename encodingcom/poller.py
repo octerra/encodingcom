@@ -72,7 +72,7 @@ class Poller(object):
             sleep(interval)
 
     @staticmethod
-    def poll_status(service: Encoding, media_id: str, callback=None, status='Finished', interval: int=5):
+    def poll_status(service: Encoding, media_id: str, callback=None, status='Finished', interval: float=5):
         """
         Continuously poll for status changes from the prior state.
 

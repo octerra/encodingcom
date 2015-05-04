@@ -54,7 +54,14 @@ def get_args() -> Namespace:
         '--key': {
             'required': True,
             'help': 'Designate a required User Key to access encoding.com'
+        },
+
+        '--interval': {
+            'required': False,
+            'help': 'Designates an interval to poll encoding.com for the job status details (in seconds)\n'
+                    'Defaults to 5 seconds if not specified'
         }
+
     }
 
     parser = ArgumentParser()
@@ -66,6 +73,9 @@ def get_args() -> Namespace:
     if not args.mediaid:
         # not specified... reflect as this will use the latest encoding mediaid later in the workflow
         args.mediaid = ''
+
+    if not args.interval:
+        args.interval = 5
 
     return args
 
@@ -107,7 +117,8 @@ def main(args: Namespace):
         media_id = get_latest_media(encoding)['mediaid']
         print('MediaId not specified, using the latest media id in the queue: %s' % media_id)
 
-    Poller.poll_status(encoding, media_id=media_id, callback=pretty_print_response, interval=0)
+    Poller.poll_status(encoding, media_id=media_id, callback=pretty_print_response,
+                       interval=float(args_dict['interval']))
 
 
 if __name__ == '__main__':
