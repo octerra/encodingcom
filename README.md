@@ -21,6 +21,10 @@ Key Features:
 
 Revision History
 
+0.1.4
+* tools/ls_queue.py provided as a CLI to report all elements in the queue.
+    verbose mode enables GetStatus along with GetMediaInfo level of details
+
 0.1.3
 * tools/cancel_media.py provided as a CLI to help manage/delete items in the queue
 * functional test for CancelMedia action
