@@ -21,6 +21,10 @@ Key Features:
 
 Revision History
 
+0.1.5
+* encodingcom/tests/test_positive.py added test for process media
+* added helper function get_filename_from_url
+
 0.1.4
 * tools/ls_queue.py provided as a CLI to report all elements in the queue.
     verbose mode enables GetStatus along with GetMediaInfo level of details

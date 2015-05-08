@@ -11,6 +11,7 @@ from encodingcom.exception import EncodingErrors
 from encodingcom.response_helper import get_response
 
 
+
 class EncodingPositive(TestCase):
     """
     Coverage for encoding.com positive tests
@@ -27,14 +28,9 @@ class EncodingPositive(TestCase):
         user_key = getenv('ENCODING_USER_KEY')
         self.encoding = Encoding(user_id, user_key)
 
-    def tearDown(self):
-        pass
+        self.source = getenv('ENCODING_TEST_SOURCE') # Does not accept local file paths - Use http(s)://<PATH TO FILE> or FTP url
 
-    def test_add_media(self):
-        """
-        Test add media call
-        :return:
-        """
+    def tearDown(self):
         pass
 
     def test_media_apis(self):
@@ -107,12 +103,112 @@ class EncodingPositive(TestCase):
 
     def test_add_media(self):
         """
+        Positive test for get_media
 
         :return:
         """
-        # TODO: need media store, reference and upload to encoding.com
-        pass
+        try:
+            destination_format = {'output': 'mp4', 'video_codec': 'libx264'}
 
+            status, result = self.encoding.add_media(source=self.source, format=destination_format, destination=[])
+
+            self.logger.info('Add Media results:')
+            self.logger.info(result)
+
+
+        except KeyError:
+            # possible that there are no media currently found in the encoding.com
+            pass
+        except EncodingErrors:
+            # AddMedia should always function, unlike GetMediaInfo...
+
+            self.fail('Encoding Error happened and should not have')
+        except:
+            self.fail('General exception should not have happened')
+
+    def test_add_media_benchmark(self):
+        """
+        Positive test for get_media_benchmark.
+
+
+        :return:
+        """
+        try:
+            destination_format = {'output': 'mp4', 'video_codec': 'libx264'}
+
+            status, result = self.encoding.add_media_benchmark(source=self.source, format=destination_format, destination=[])
+
+            self.benchmark_result_mediaid = result['response']['MediaID']
+
+            self.logger.info('Add Media Benchmark results:')
+            self.logger.info(result)
+
+        except KeyError:
+            # possible that there are no media currently found in the encoding.com
+            pass
+        except EncodingErrors:
+            # AddMedia should always function, unlike GetMediaInfo...
+
+            self.fail('Encoding Error happened and should not have')
+        except:
+            self.fail('General exception should not have happened')
+
+
+    def test_process_media(self):
+        """
+        Positive test for process_media
+
+
+        :return:
+        """
+
+        status, response = self.encoding.get_media_list()
+        response = get_response(response)
+        media = response['media']
+
+        media_id = None
+
+        for item in media:
+
+            file_url = item['mediafile']
+
+            filename = self.get_filename_from_url(file_url)
+            test_filename = self.get_filename_from_url(self.source)
+
+            if filename == test_filename and 'Ready to process' in item['mediastatus']:
+                media_id = item['mediaid']
+                break
+
+        if media_id:
+
+            try:
+                status, result = self.encoding.process_media(mediaid=media_id, format={'output': 'mp4', 'video_codec': 'libx264'})
+
+                if not result['response']['message'] == 'Started':
+                    self.fail('Media was not started')
+
+            except KeyError:
+                self.fail('Did not return expected response')
+
+
+
+    def test_get_media_list(self):
+        """
+        Positive test for get_media_list
+
+
+        :return:
+        """
+
+        status, result = self.encoding.get_media_list()
+
+
+    def get_filename_from_url(self, file_url):
+
+        file_url_components = file_url.split('/')
+        filename = file_url_components[len(file_url_components)-1]
+
+        return filename
 
 if __name__ == '__main__':
     from unittest import main
