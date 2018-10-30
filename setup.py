@@ -6,7 +6,7 @@ def read(file_name):
 
 setup(
     name="encodingcom",
-    version="0.1.2",
+    version="0.1.6",
     description="Python 3 wrapper for Encoding.com api",
     license="",
     keywords="encoding.com transcoding",
@@ -19,7 +19,7 @@ setup(
     long_description='Encoding.com service handling (c) StudioNow 2015',
     include_package_data=True,
     install_requires=[
-        'requests>=2.5.1'
+        'requests>=2.20.0'
     ],
     data_files = ['README.md'],
     classifiers=[
